@@ -1,0 +1,194 @@
+// NYBF Connect — Prisma schema
+// Maps to SRS sections 3.2–3.8
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  MEMBER
+  COORDINATOR
+  ADMIN
+}
+
+enum OpportunityType {
+  PROGRAMME
+  FELLOWSHIP
+  INTERNSHIP
+  GRANT
+  JOB
+}
+
+enum IdeaStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// --- Users & Auth (FR-2.x) ---
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  phone         String?   @unique
+  passwordHash  String?
+  county        String
+  role          Role      @default(MEMBER)
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  votes             Vote[]
+  ideas             Idea[]
+  eventRegistrations EventRegistration[]
+  moduleProgress    ModuleProgress[]
+  auditLogs         AuditLog[]           @relation("ActorAuditLogs")
+
+  @@index([county])
+}
+
+// --- Budget Hub (FR-4.x) ---
+
+model BudgetModule {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  contentType String   // "text" | "video"
+  contentUrl  String?  // video URL or reference to rich text content
+  contentBody String?  @db.Text
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  progress ModuleProgress[]
+}
+
+model ModuleProgress {
+  id        String       @id @default(cuid())
+  userId    String
+  moduleId  String
+  completed Boolean      @default(false)
+  updatedAt DateTime     @updatedAt
+
+  user   User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  module BudgetModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, moduleId])
+}
+
+// --- Youth Voice: National Youth Pulse (FR-5.1–5.3) ---
+
+model Poll {
+  id        String       @id @default(cuid())
+  question  String
+  active    Boolean      @default(true)
+  resultsVisible Boolean @default(true)
+  createdAt DateTime     @default(now())
+
+  options PollOption[]
+}
+
+model PollOption {
+  id     String @id @default(cuid())
+  pollId String
+  label  String
+
+  poll  Poll   @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  votes Vote[]
+}
+
+model Vote {
+  id           String     @id @default(cuid())
+  userId       String
+  pollId       String
+  pollOptionId String
+  createdAt    DateTime   @default(now())
+
+  user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  option PollOption @relation(fields: [pollOptionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, pollId]) // one vote per member per poll (FR-5.2)
+}
+
+// --- Youth Voice: Submit an Idea (FR-5.4–5.5) ---
+
+model Idea {
+  id            String     @id @default(cuid())
+  userId        String
+  title         String
+  description   String     @db.Text
+  category      String?
+  status        IdeaStatus @default(PENDING)
+  adminResponse String?    @db.Text
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// --- Opportunities (FR-6.x) ---
+
+model Opportunity {
+  id        String          @id @default(cuid())
+  title     String
+  type      OpportunityType
+  location  String
+  deadline  DateTime
+  description String?       @db.Text
+  applyUrl  String?
+  createdBy String
+  expired   Boolean         @default(false)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@index([type])
+  @@index([deadline])
+}
+
+// --- Events (FR-7.x) ---
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String?  @db.Text
+  date        DateTime
+  location    String
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  registrations EventRegistration[]
+}
+
+model EventRegistration {
+  id        String   @id @default(cuid())
+  userId    String
+  eventId   String
+  createdAt DateTime @default(now())
+  reminded  Boolean  @default(false)
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId])
+}
+
+// --- Admin / Audit (FR-8.x, Auditability NFR) ---
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String
+  action    String   // e.g. "IDEA_APPROVED", "OPPORTUNITY_CREATED"
+  targetId  String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  actor User @relation("ActorAuditLogs", fields: [actorId], references: [id])
+}

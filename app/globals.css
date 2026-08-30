@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #F5F7F9;
+  --bg-2: #EAF0F4;
+  --surface: #FFFFFF;
+  --surface-elevated: #F8FAFC;
+  --surface-glass: rgba(255, 255, 255, 0.72);
+  --text: #091E24;
+  --text-muted: #4B636B;
+  --border: rgba(13, 75, 87, 0.14);
+  --border-strong: rgba(13, 75, 87, 0.28);
+  --brand: #0E5C68;
+  --brand-light: #167A8A;
+  --brand-dark: #072B31;
+  --brand-accent: #0284C7;
+  --brand-gold: #D97706;
+  --brand-crimson: #BE123C;
+  --brand-emerald: #059669;
+}
+
+.dark {
+  --bg: #061317;
+  --bg-2: #0B1E24;
+  --surface: #0E252C;
+  --surface-elevated: #133038;
+  --surface-glass: rgba(14, 37, 44, 0.75);
+  --text: #F1F8FA;
+  --text-muted: #8EA6AD;
+  --border: rgba(241, 248, 250, 0.12);
+  --border-strong: rgba(241, 248, 250, 0.24);
+  --brand: #1E8798;
+  --brand-light: #38A9BB;
+  --brand-dark: #061519;
+  --brand-accent: #38BDF8;
+  --brand-gold: #FBBF24;
+  --brand-crimson: #F43F5E;
+  --brand-emerald: #10B981;
+}
+
+* {
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: radial-gradient(circle at 50% 0%, var(--bg-2) 0%, var(--bg) 100%);
+  color: var(--text);
+  min-height: 100vh;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+/* Theme-adaptive glass surface — for UI navigation & cards (text should use text-ink) */
+.glass-panel {
+  background: var(--surface-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+}
+
+/* Fixed-dark glass surface — for panels sitting over photographs with white text.
+   Deliberately NOT theme-adaptive: it must stay dark in light mode too, since
+   white text lives on it regardless of the site's light/dark toggle. */
+.glass-panel-photo {
+  background: rgba(6, 19, 23, 0.78);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+/* Warm tinted gold glass for special highlights */
+.glass-panel-gold {
+  background: rgba(217, 119, 6, 0.18);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+/* Translucent scrims that let the authentic Kenyan youth photography shine through brightly while maintaining crisp legibility */
+.scrim-hero {
+  background: linear-gradient(
+    135deg,
+    rgba(5, 20, 25, 0.72) 0%,
+    rgba(8, 32, 39, 0.52) 50%,
+    rgba(6, 21, 26, 0.38) 100%
+  );
+}
+
+.scrim-bottom {
+  background: linear-gradient(
+    to top,
+    rgba(4, 14, 18, 0.75) 0%,
+    rgba(4, 14, 18, 0.25) 55%,
+    transparent 100%
+  );
+}
+
+.text-shadow-strong {
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+}
+
+.text-shadow-subtle {
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Custom subtle scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand);
+}
