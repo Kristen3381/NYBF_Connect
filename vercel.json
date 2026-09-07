@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm --prefix frontend run build",
+  "outputDirectory": "frontend/.next",
+  "framework": "nextjs",
+  "crons": [
+    {
+      "path": "/api/cron/event-reminders",
+      "schedule": "0 * * * *"
+    }
+  ]
+}
