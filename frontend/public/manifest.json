@@ -1,13 +1,38 @@
 {
-  "name": "NYBF Connect",
-  "short_name": "NYBF",
-  "description": "Youth economic participation platform for Kenya's National Youth Budget Forum.",
+  "name": "NYBF Connect — National Youth Budget Forum",
+  "short_name": "NYBF Connect",
+  "description": "Youth economic participation and civic finance platform for Kenya's National Youth Budget Forum across 47 counties.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#f8fafc",
-  "theme_color": "#1e3a8a",
+  "orientation": "portrait-primary",
+  "background_color": "#072B31",
+  "theme_color": "#0E5C68",
+  "categories": ["education", "government", "social", "finance"],
   "icons": [
-    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }

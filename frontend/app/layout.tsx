@@ -1,14 +1,28 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { AuthProvider } from "@/components/session-provider";
+
+export const viewport: Viewport = {
+  themeColor: "#0E5C68",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
 
 export const metadata: Metadata = {
   title: "National Youth Budget Forum | NYBF Connect",
   description:
     "A civic-tech digital platform for Kenyan youth to understand the national budget, participate in policy consultations, vote on priorities, and access opportunities across all 47 counties.",
   manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "NYBF Connect",
+  },
   icons: {
     icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
   },
 };
 
@@ -29,7 +43,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen font-sans text-ink antialiased selection:bg-brand/20 selection:text-brand">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-          {children}
+          <AuthProvider>{children}</AuthProvider>
         </ThemeProvider>
       </body>
     </html>

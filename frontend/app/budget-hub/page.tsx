@@ -200,7 +200,7 @@ export default async function BudgetHubPage() {
                   href={`/budget-hub/${m.id}`}
                   className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-brand transition-all group-hover:text-brand-light dark:text-brand-light"
                 >
-                  <span>Start Learning</span>
+                  <span>Study Module</span>
                   <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" />
                 </Link>
               </div>
@@ -278,7 +278,7 @@ export default async function BudgetHubPage() {
           <FooterColumn
             title="Governance"
             links={[
-              { label: "About NYBF", href: "/#about" },
+              { label: "About NYBF", href: "/about" },
               { label: "Constitution Art. 201", href: "https://kenyalaw.org" },
               { label: "Join Network", href: "/join" },
             ]}

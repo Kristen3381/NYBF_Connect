@@ -3,35 +3,32 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { CheckCircle2, MessageSquare, Send, Sparkles, TrendingUp, ArrowRight, ShieldCheck, ThumbsUp } from "lucide-react";
+import { CheckCircle2, Send, Sparkles, ArrowRight, ShieldCheck, Loader2, AlertCircle } from "lucide-react";
+
+interface PollOption {
+  id: string;
+  label: string;
+  votesCount: number;
+}
 
 interface PollProps {
   initialPoll?: {
     id: string;
     question: string;
-    options: { id: string; label: string; count: number }[];
-  };
+    options: PollOption[];
+  } | null;
 }
 
 export function LivePulseVoting({ initialPoll }: PollProps) {
-  const defaultPoll = {
-    id: "sample-poll",
-    question: "Which fiscal priority should receive the largest increase in the FY 2026/27 Budget?",
-    options: [
-      { id: "1", label: "Job creation & MSME startup grants (Hustler Fund reform)", count: 4820 },
-      { id: "2", label: "Higher Education Loan Board (HELB) & free TVET capitation", count: 3950 },
-      { id: "3", label: "Digital economy tax relief & local tech infrastructure", count: 2640 },
-      { id: "4", label: "County healthcare facilities & youth mental health clinics", count: 1810 },
-    ],
-  };
-
-  const poll = initialPoll || defaultPoll;
-  const totalInitialVotes = poll.options.reduce((acc, curr) => acc + curr.count, 0);
-
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [hasVoted, setHasVoted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [totalVotes, setTotalVotes] = useState(totalInitialVotes);
+  const [voteError, setVoteError] = useState<string | null>(null);
+
+  const initialTotal = initialPoll?.options
+    ? initialPoll.options.reduce((acc, curr) => acc + (curr.votesCount || 0), 0)
+    : 0;
+  const [totalVotes, setTotalVotes] = useState(initialTotal);
 
   // Idea pitch state
   const [ideaTitle, setIdeaTitle] = useState("");
@@ -39,36 +36,53 @@ export function LivePulseVoting({ initialPoll }: PollProps) {
   const [ideaBody, setIdeaBody] = useState("");
   const [ideaSubmitted, setIdeaSubmitted] = useState(false);
   const [ideaLoading, setIdeaLoading] = useState(false);
+  const [ideaError, setIdeaError] = useState<string | null>(null);
 
   const handleVote = async (optionId: string) => {
-    if (hasVoted) return;
-    setSelectedOption(optionId);
+    if (hasVoted || submitting || !initialPoll?.id) return;
+    setVoteError(null);
     setSubmitting(true);
 
     try {
-      // If we have an active poll id in DB, attempt API call
-      if (initialPoll?.id && initialPoll.id !== "sample-poll") {
-        await fetch(`/api/polls/${initialPoll.id}/vote`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ pollOptionId: optionId }),
-        });
+      const res = await fetch(`/api/polls/${initialPoll.id}/vote`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ optionId }),
+      });
+
+      if (res.status === 401) {
+        setVoteError("Please sign in to register your vote in this consultation.");
+        return;
       }
-    } catch {
-      // Fallback gracefully for preview/client mode
-    } finally {
-      setSubmitting(false);
+      if (res.status === 409) {
+        setVoteError("You have already voted in this poll.");
+        setHasVoted(true);
+        setSelectedOption(optionId);
+        return;
+      }
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setVoteError(data.error || "Failed to register vote. Please try again.");
+        return;
+      }
+
+      setSelectedOption(optionId);
       setHasVoted(true);
       setTotalVotes((prev) => prev + 1);
+    } catch {
+      setVoteError("Network error. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const handleIdeaSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIdeaLoading(true);
+    setIdeaError(null);
 
     try {
-      await fetch("/api/ideas", {
+      const res = await fetch("/api/ideas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -77,11 +91,22 @@ export function LivePulseVoting({ initialPoll }: PollProps) {
           category: ideaCategory,
         }),
       });
+
+      if (res.status === 401) {
+        setIdeaError("Please sign in to submit a policy proposal to Parliament.");
+        return;
+      }
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setIdeaError(data.error || "Failed to submit proposal. Please check your inputs.");
+        return;
+      }
+
+      setIdeaSubmitted(true);
     } catch {
-      // Keep UI responsive
+      setIdeaError("Network error. Please try again.");
     } finally {
       setIdeaLoading(false);
-      setIdeaSubmitted(true);
     }
   };
 
@@ -108,60 +133,90 @@ export function LivePulseVoting({ initialPoll }: PollProps) {
                 National Youth Pulse
               </span>
             </div>
-            <span className="text-xs text-white/70">
-              {totalVotes.toLocaleString()} Votes Recorded
-            </span>
+            {initialPoll && (
+              <span className="text-xs text-white/70">
+                {totalVotes.toLocaleString()} Votes Recorded
+              </span>
+            )}
           </div>
 
-          <h3 className="mt-4 font-serif text-2xl font-bold leading-snug text-white sm:text-3xl">
-            {poll.question}
-          </h3>
+          {initialPoll && initialPoll.options.length > 0 ? (
+            <>
+              <h3 className="mt-4 font-serif text-2xl font-bold leading-snug text-white sm:text-3xl">
+                {initialPoll.question}
+              </h3>
 
-          <div className="mt-6 space-y-3">
-            {poll.options.map((opt) => {
-              const voteDelta = hasVoted && selectedOption === opt.id ? 1 : 0;
-              const count = opt.count + voteDelta;
-              const pct = Math.round((count / (totalVotes || 1)) * 100);
-              const isSelected = selectedOption === opt.id;
-
-              return (
-                <button
-                  key={opt.id}
-                  onClick={() => handleVote(opt.id)}
-                  disabled={hasVoted || submitting}
-                  className={`group relative w-full overflow-hidden rounded-2xl border p-4 text-left transition-all ${
-                    isSelected
-                      ? "border-emerald-400 bg-emerald-500/20 text-white shadow-md"
-                      : hasVoted
-                      ? "border-white/10 bg-white/5 text-white/80"
-                      : "border-white/20 bg-white/10 hover:border-emerald-400 hover:bg-white/15 text-white"
-                  }`}
-                >
-                  {/* Result Bar on vote */}
-                  {hasVoted && (
-                    <div
-                      className="absolute inset-y-0 left-0 bg-emerald-500/30 transition-all duration-1000 ease-out"
-                      style={{ width: `${pct}%` }}
-                    />
-                  )}
-
-                  <div className="relative flex items-center justify-between gap-3 text-xs sm:text-sm font-semibold">
-                    <span className="flex-1 leading-snug">{opt.label}</span>
-                    <span className="flex items-center gap-2 shrink-0">
-                      {hasVoted && (
-                        <span className="font-mono text-xs font-bold text-emerald-300">
-                          {pct}%
-                        </span>
-                      )}
-                      {isSelected && (
-                        <CheckCircle2 size={18} className="text-emerald-400 animate-pop-in" />
-                      )}
-                    </span>
+              {voteError && (
+                <div className="mt-4 rounded-xl bg-amber-500/20 border border-amber-400/30 p-3 text-xs font-semibold text-amber-200 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle size={15} className="shrink-0 text-amber-300" />
+                    <span>{voteError}</span>
                   </div>
-                </button>
-              );
-            })}
-          </div>
+                  {voteError.includes("sign in") && (
+                    <Link href="/my-nybf" className="underline font-bold text-white hover:text-emerald-300 shrink-0">
+                      Sign in &rarr;
+                    </Link>
+                  )}
+                </div>
+              )}
+
+              <div className="mt-6 space-y-3">
+                {initialPoll.options.map((opt) => {
+                  const voteDelta = hasVoted && selectedOption === opt.id ? 1 : 0;
+                  const count = (opt.votesCount || 0) + voteDelta;
+                  const pct = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
+                  const isSelected = selectedOption === opt.id;
+
+                  return (
+                    <button
+                      key={opt.id}
+                      onClick={() => handleVote(opt.id)}
+                      disabled={hasVoted || submitting}
+                      className={`group relative w-full overflow-hidden rounded-2xl border p-4 text-left transition-all ${
+                        isSelected
+                          ? "border-emerald-400 bg-emerald-500/20 text-white shadow-md"
+                          : hasVoted
+                          ? "border-white/10 bg-white/5 text-white/80"
+                          : "border-white/20 bg-white/10 hover:border-emerald-400 hover:bg-white/15 text-white"
+                      }`}
+                    >
+                      {/* Result Bar on vote */}
+                      {hasVoted && (
+                        <div
+                          className="absolute inset-y-0 left-0 bg-emerald-500/30 transition-all duration-1000 ease-out"
+                          style={{ width: `${pct}%` }}
+                        />
+                      )}
+
+                      <div className="relative flex items-center justify-between gap-3 text-xs sm:text-sm font-semibold">
+                        <span className="flex-1 leading-snug">{opt.label}</span>
+                        <span className="flex items-center gap-2 shrink-0">
+                          {hasVoted && (
+                            <span className="font-mono text-xs font-bold text-emerald-300">
+                              {pct}%
+                            </span>
+                          )}
+                          {isSelected && (
+                            <CheckCircle2 size={18} className="text-emerald-400 animate-pop-in" />
+                          )}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          ) : (
+            <div className="py-12 text-center space-y-4">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-emerald-400">
+                <ShieldCheck size={28} />
+              </div>
+              <h3 className="font-serif text-2xl font-bold text-white">Public Consultation Active</h3>
+              <p className="text-xs sm:text-sm text-white/70 max-w-sm mx-auto">
+                No open citizen polls at this immediate moment. The next consultation for the upcoming budget cycle will appear here soon.
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="relative z-10 mt-6 pt-4 border-t border-white/15 flex items-center justify-between text-xs text-white/80">
@@ -203,6 +258,20 @@ export function LivePulseVoting({ initialPoll }: PollProps) {
           <p className="mt-1.5 text-xs sm:text-sm text-muted">
             The National Youth Budget Forum compiles vetted youth proposals into the official Youth Budget Memorandum presented before the National Assembly.
           </p>
+
+          {ideaError && (
+            <div className="mt-4 rounded-xl bg-amber-500/10 border border-amber-500/20 p-3 text-xs font-semibold text-amber-600 dark:text-amber-400 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <AlertCircle size={15} className="shrink-0" />
+                <span>{ideaError}</span>
+              </div>
+              {ideaError.includes("sign in") && (
+                <Link href="/my-nybf" className="underline font-bold text-brand dark:text-brand-light shrink-0">
+                  Sign in &rarr;
+                </Link>
+              )}
+            </div>
+          )}
 
           {!ideaSubmitted ? (
             <form onSubmit={handleIdeaSubmit} className="mt-5 space-y-3.5">
@@ -252,8 +321,17 @@ export function LivePulseVoting({ initialPoll }: PollProps) {
                 disabled={ideaLoading}
                 className="flex w-full items-center justify-center gap-2 rounded-full bg-brand py-3.5 text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-brand/25 transition-all hover:-translate-y-0.5 hover:bg-brand-light hover:shadow-lg active:translate-y-0 disabled:opacity-50"
               >
-                <span>{ideaLoading ? "Submitting..." : "Submit Policy Idea"}</span>
-                <Send size={14} />
+                {ideaLoading ? (
+                  <>
+                    <Loader2 size={15} className="animate-spin" />
+                    <span>Submitting proposal…</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Submit Policy Idea</span>
+                    <Send size={14} />
+                  </>
+                )}
               </button>
             </form>
           ) : (
@@ -264,6 +342,7 @@ export function LivePulseVoting({ initialPoll }: PollProps) {
                 Your proposal has been logged for review by the NYBF policy research committee.
               </p>
               <button
+                type="button"
                 onClick={() => {
                   setIdeaSubmitted(false);
                   setIdeaTitle("");

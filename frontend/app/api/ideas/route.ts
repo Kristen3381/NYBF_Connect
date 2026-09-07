@@ -7,8 +7,8 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 const createSchema = z.object({
-  title: z.string().min(3),
-  description: z.string().min(10),
+  title: z.string().min(3, "Title must be at least 3 characters"),
+  description: z.string().min(5, "Description must be at least 5 characters"),
   category: z.string().optional(),
 });
 
@@ -16,14 +16,14 @@ const createSchema = z.object({
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!session || !(session.user as any)?.id) {
+      return NextResponse.json({ error: "Please sign in to submit a policy proposal." }, { status: 401 });
     }
 
     const body = await req.json();
     const parsed = createSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+      return NextResponse.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 });
     }
 
     const idea = await prisma.idea.create({
@@ -36,21 +36,46 @@ export async function POST(req: Request) {
   }
 }
 
-// List current user's ideas
-export async function GET() {
+// List ideas: all ideas for admins, or user's ideas, or approved ideas
+export async function GET(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const role = (session?.user as any)?.role;
+    const userId = (session?.user as any)?.id;
+    const { searchParams } = new URL(req.url);
+    const fetchAll = searchParams.get("all") === "true";
+
+    if (fetchAll && role === "ADMIN") {
+      const ideas = await prisma.idea.findMany({
+        include: {
+          user: {
+            select: { name: true, county: true, email: true },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+      });
+      return NextResponse.json({ ideas });
     }
 
+    if (userId) {
+      const ideas = await prisma.idea.findMany({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
+      });
+      return NextResponse.json({ ideas });
+    }
+
+    // Public view: return approved ideas
     const ideas = await prisma.idea.findMany({
-      where: { userId: (session.user as any).id },
+      where: { status: "APPROVED" },
+      include: {
+        user: { select: { name: true, county: true } },
+      },
       orderBy: { createdAt: "desc" },
     });
 
     return NextResponse.json({ ideas });
   } catch (error) {
-    return NextResponse.json({ ideas: [] });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

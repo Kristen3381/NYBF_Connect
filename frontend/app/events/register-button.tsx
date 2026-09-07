@@ -16,26 +16,39 @@ export function RegisterButton({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [attendeeName, setAttendeeName] = useState("");
   const [attendeeCounty, setAttendeeCounty] = useState("Nairobi");
 
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault();
     setStatus("loading");
+    setErrorMessage(null);
     try {
       const res = await fetch(`/api/events/${eventId}/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ attendeeName, attendeeCounty }),
       });
-      if (res.ok) {
-        setStatus("done");
-      } else {
-        // Fallback gracefully for demo/preview
-        setStatus("done");
+      if (res.status === 401) {
+        setStatus("error");
+        setErrorMessage("Please sign in at My NYBF to register for events.");
+        return;
       }
-    } catch {
+      if (res.status === 409) {
+        setStatus("done");
+        return;
+      }
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setStatus("error");
+        setErrorMessage(data.error || "Failed to register for this event.");
+        return;
+      }
       setStatus("done");
+    } catch {
+      setStatus("error");
+      setErrorMessage("Network error. Please try again.");
     }
   }
 
@@ -89,6 +102,17 @@ export function RegisterButton({
                     <MapPin size={13} className="text-emerald-400" />
                     {eventLocation}
                   </span>
+                )}
+              </div>
+            )}
+
+            {errorMessage && (
+              <div className="mt-3 rounded-xl bg-amber-500/20 border border-amber-400/30 p-3 text-xs font-semibold text-amber-200">
+                {errorMessage}
+                {errorMessage.includes("My NYBF") && (
+                  <a href="/my-nybf" className="ml-1 underline font-bold hover:text-white">
+                    Sign in here &rarr;
+                  </a>
                 )}
               </div>
             )}

@@ -10,7 +10,8 @@ export const dynamic = "force-dynamic";
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const type = searchParams.get("type") ?? undefined;
+    const typeParam = searchParams.get("type");
+    const type = typeParam && typeParam !== "ALL" ? typeParam : undefined;
     const location = searchParams.get("location") ?? undefined;
 
     const opportunities = await prisma.opportunity.findMany({
@@ -24,39 +25,31 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ opportunities });
   } catch (error) {
-    return NextResponse.json({
-      opportunities: [
-        {
-          id: "opp-1",
-          title: "Public Finance Policy Fellowship 2026",
-          type: "FELLOWSHIP",
-          location: "Nairobi / Hybrid",
-          deadline: new Date(Date.now() + 86400000 * 30).toISOString(),
-          description: "Hands-on fellowship analyzing county and national budgets with legislative mentors.",
-          applyUrl: "/my-nybf",
-        },
-      ],
-    });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
 
 const createSchema = z.object({
-  title: z.string().min(3),
+  title: z.string().min(3, "Title must be at least 3 characters"),
   type: z.enum(["PROGRAMME", "FELLOWSHIP", "INTERNSHIP", "GRANT", "JOB"]),
-  location: z.string().min(2),
-  deadline: z.string().datetime(),
+  location: z.string().min(2, "Location is required"),
+  deadline: z.string(),
   description: z.string().optional(),
-  applyUrl: z.string().url().optional(),
+  stipend: z.string().optional(),
+  applyUrl: z.string().optional(),
 });
 
 // FR-6.3: admins/coordinators can create listings
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    const role = (session?.user as any)?.role;
+    if (!session || !(session.user as any)?.id) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
 
-    if (!session || (role !== "ADMIN" && role !== "COORDINATOR")) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    const role = (session.user as any).role;
+    if (role !== "ADMIN" && role !== "COORDINATOR") {
+      return NextResponse.json({ error: "Forbidden: Admin or Coordinator access required" }, { status: 403 });
     }
 
     const body = await req.json();

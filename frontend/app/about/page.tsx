@@ -45,18 +45,6 @@ const leadershipTeam = [
     county: "National Secretariat Desk",
     photo: "/pictures/secretariat-obade-george.jpeg",
   },
-  {
-    name: "Faith Chebet",
-    role: "Rift Valley Regional Coordinator",
-    county: "Kericho / Nakuru",
-    photo: "/pictures/panel-speech.jpeg",
-  },
-  {
-    name: "Brian Ochieng",
-    role: "Western Regional Coordinator",
-    county: "Kisumu / Kakamega",
-    photo: "/pictures/roundtable-overhead.jpeg",
-  },
 ];
 
 export default function AboutPage() {
@@ -177,18 +165,18 @@ export default function AboutPage() {
           <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end mb-12">
             <div>
               <span className="text-xs font-bold uppercase tracking-widest text-brand dark:text-brand-light">
-                Coordination Desk
+                Executive Leadership
               </span>
               <h2 className="mt-2 font-serif text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
-                National Leadership Team
+                National Executive Council
               </h2>
             </div>
             <div className="text-xs font-bold text-muted">
-              Representing 47 Devolved Chapters
+              Executive Governance & Secretariat
             </div>
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-8 sm:grid-cols-2 max-w-4xl mx-auto">
             {leadershipTeam.map((leader) => (
               <div
                 key={leader.name}

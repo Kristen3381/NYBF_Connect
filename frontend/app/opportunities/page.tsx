@@ -8,63 +8,6 @@ import { OpportunitiesClient } from "./opportunities-client";
 
 export const revalidate = 60;
 
-const fallbackOpportunities = [
-  {
-    id: "opp-1",
-    title: "National Youth Public Policy Research Fellowship 2026",
-    type: "FELLOWSHIP",
-    location: "Nairobi / Hybrid",
-    deadline: new Date("2026-10-15"),
-    description: "Paid 6-month fellowship analyzing Kenya's parliamentary finance bills and drafting youth policy amendments.",
-    stipend: "Ksh 65,000 / month",
-  },
-  {
-    id: "opp-2",
-    title: "County Agri-Enterprise & Green Innovation Grant",
-    type: "GRANT",
-    location: "All 47 Counties",
-    deadline: new Date("2026-10-30"),
-    description: "Seed grants up to Ksh 500,000 for youth-led climate-smart agriculture and value-addition enterprises.",
-    stipend: "Up to Ksh 500,000",
-  },
-  {
-    id: "opp-3",
-    title: "Digital Economy & AI Policy Research Internship",
-    type: "INTERNSHIP",
-    location: "Nairobi Central / Remote",
-    deadline: new Date("2026-10-10"),
-    description: "Hands-on policy research analyzing digital services taxation, gig worker protections, and AI governance in Kenya.",
-    stipend: "Ksh 45,000 / month",
-  },
-  {
-    id: "opp-4",
-    title: "Youth Public Procurement (AGPO) Capacity Bootcamp",
-    type: "PROGRAMME",
-    location: "Nairobi, Mombasa, Kisumu & Virtual",
-    deadline: new Date("2026-11-12"),
-    description: "Intensive 4-week certification training on bidding for the mandatory 30% government procurement quota.",
-    stipend: "Fully Funded Training",
-  },
-  {
-    id: "opp-5",
-    title: "Devolution Budget Monitoring Officer",
-    type: "JOB",
-    location: "Rift Valley / Western Region",
-    deadline: new Date("2026-11-25"),
-    description: "Full-time position coordinating county youth budget desks, analyzing Annual Development Plans and organizing civic clinics.",
-    stipend: "Competitive NGO Scale",
-  },
-  {
-    id: "opp-6",
-    title: "Young Women in Fiscal Governance Leadership Cohort",
-    type: "PROGRAMME",
-    location: "National (47 Counties)",
-    deadline: new Date("2026-12-05"),
-    description: "Leadership accelerator mentoring 100 young Kenyan women to contest and participate in county budget committees.",
-    stipend: "Full Travel & Fellowship Grant",
-  },
-];
-
 export default async function OpportunitiesPage() {
   let opportunities: any[] = [];
 
@@ -76,10 +19,10 @@ export default async function OpportunitiesPage() {
     if (dbOpps && dbOpps.length > 0) {
       opportunities = dbOpps;
     } else {
-      opportunities = fallbackOpportunities;
+      opportunities = [];
     }
   } catch {
-    opportunities = fallbackOpportunities;
+    opportunities = [];
   }
 
   const serializedOpportunities = opportunities.map((opp) => ({
@@ -202,7 +145,7 @@ export default async function OpportunitiesPage() {
           <FooterColumn
             title="Governance"
             links={[
-              { label: "About NYBF", href: "/#about" },
+              { label: "About NYBF", href: "/about" },
               { label: "AGPO Regulations", href: "https://agpo.go.ke" },
               { label: "Join Network", href: "/join" },
             ]}

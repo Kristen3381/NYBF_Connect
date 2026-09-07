@@ -12,6 +12,9 @@ import {
   Scale,
   BookOpen,
   Calendar,
+  Building2,
+  ExternalLink,
+  Landmark,
 } from "lucide-react";
 import { FooterColumn } from "@/components/ui-blocks";
 
@@ -41,13 +44,6 @@ const executiveLeaders = [
     quote: "Every public shilling allocated must have measurable impact on youth enterprise, TVET skills, and county devolution governance.",
     badge: "Executive Secretary",
   },
-];
-
-const countyRegionalLeads = [
-  { name: "Faith Chebet", role: "Rift Valley Regional Coordinator", county: "Kericho / Nakuru", photo: "/pictures/panel-speech.jpeg" },
-  { name: "Brian Ochieng", role: "Western & Nyanza Regional Coordinator", county: "Kisumu / Kakamega", photo: "/pictures/roundtable-overhead.jpeg" },
-  { name: "Amina Hassan", role: "Coast Regional Coordinator", county: "Mombasa / Kilifi", photo: "/pictures/stage-presentation.jpeg" },
-  { name: "Kelvin Mwangi", role: "Central & Eastern Regional Coordinator", county: "Kiambu / Machakos", photo: "/pictures/leaders-exterior.jpeg" },
 ];
 
 export default function LeadershipPage() {
@@ -165,47 +161,97 @@ export default function LeadershipPage() {
           ))}
         </div>
 
-        {/* 47-COUNTY REGIONAL DESKS */}
-        <div className="mt-24">
-          <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end mb-12">
-            <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-brand dark:text-brand-light">
-                Devolved Governance
-              </span>
-              <h2 className="mt-2 font-serif text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
-                Regional Coordinators Desk
-              </h2>
-            </div>
-            <div className="text-xs font-bold text-muted">
-              Coordinating 47 Devolved County Chapters
-            </div>
+        {/* KEY GOVERNMENT & INSTITUTIONAL PARTNERS SECTION */}
+        <div className="mt-24 pt-16 border-t border-line">
+          <div className="text-center max-w-3xl mx-auto mb-14">
+            <span className="text-xs font-bold uppercase tracking-widest text-brand dark:text-brand-light">
+              Institutional Engagement &amp; Devolution Partners
+            </span>
+            <h2 className="mt-2 font-serif text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
+              Key Government &amp; Institutional Partners
+            </h2>
+            <p className="mt-3 text-sm sm:text-base text-muted">
+              Official government ministries, regulatory bodies, and public authorities engaged through constitutional budget participation, public hearings, and policy memoranda under Article 201.
+            </p>
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {countyRegionalLeads.map((lead) => (
-              <div
-                key={lead.name}
-                className="group relative overflow-hidden rounded-3xl border border-line bg-surface shadow-sm transition-all hover:shadow-xl"
-              >
-                <div className="relative aspect-square w-full overflow-hidden">
-                  <Image
-                    src={lead.photo}
-                    alt={lead.name}
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                  <div className="absolute bottom-4 left-4 right-4 text-white">
-                    <div className="flex items-center gap-1 text-[11px] text-emerald-300 font-semibold">
-                      <MapPin size={12} />
-                      <span>{lead.county}</span>
-                    </div>
-                    <div className="font-serif text-lg font-bold">{lead.name}</div>
-                    <div className="text-xs text-white/80">{lead.role}</div>
-                  </div>
+          <div className="max-w-4xl mx-auto">
+            <div className="group relative overflow-hidden rounded-3xl border border-line bg-surface shadow-md transition-all duration-300 hover:border-brand/40 hover:shadow-2xl flex flex-col md:flex-row">
+              {/* Photo Column */}
+              <div className="relative w-full md:w-5/12 aspect-[4/5] md:aspect-auto overflow-hidden bg-brand-dark">
+                <Image
+                  src="/pictures/cs-john-mbadi.jpeg"
+                  alt="Hon. John Mbadi, EGH - Cabinet Secretary, The National Treasury & Economic Planning"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 350px"
+                  className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                  priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent md:hidden" />
+                <div className="absolute top-4 left-4">
+                  <span className="glass-panel-photo rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-300">
+                    Institutional Partner
+                  </span>
                 </div>
               </div>
-            ))}
+
+              {/* Bio & Details Column */}
+              <div className="flex-1 p-6 sm:p-8 flex flex-col justify-between">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2 mb-3">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-brand dark:bg-brand/20 dark:text-brand-light">
+                      <Landmark size={12} />
+                      National Government
+                    </span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-1 text-[11px] font-bold text-amber-700 dark:text-amber-400 border border-amber-500/20">
+                      Official Partner Context
+                    </span>
+                  </div>
+
+                  <h3 className="font-serif text-2xl font-black text-ink sm:text-3xl">
+                    Hon. John Mbadi, EGH
+                  </h3>
+                  <div className="text-sm font-bold text-brand dark:text-brand-light">
+                    Cabinet Secretary, The National Treasury &amp; Economic Planning
+                  </div>
+                  <div className="text-xs font-semibold text-muted">
+                    Republic of Kenya
+                  </div>
+
+                  <p className="mt-4 text-xs sm:text-sm text-muted leading-relaxed">
+                    The National Treasury coordinates national fiscal policy, the Budget Policy Statement (BPS), and the national Division of Revenue. NYBF Connect engages the National Treasury through statutory Article 201 public participation hearings, technical youth budget submissions, and youth empowerment fiscal oversight.
+                  </p>
+
+                  {/* Explicit Mandatory Context Disclaimer */}
+                  <div className="mt-5 rounded-2xl border border-line bg-bg p-3.5 text-xs text-muted">
+                    <div className="flex items-start gap-2">
+                      <ShieldCheck size={16} className="text-brand dark:text-brand-light shrink-0 mt-0.5" />
+                      <div className="leading-relaxed">
+                        <strong className="text-ink">Official Government Partner Context: </strong>
+                        This profile acknowledges public institutional dialogue under constitutional budget participation (Article 201). This listing does not constitute a personal endorsement of NYBF Connect or a personal relationship.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Official Public Contact Channels (Only Official Government Link) */}
+                <div className="mt-6 pt-4 border-t border-line flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-semibold">
+                  <div className="flex items-center gap-1.5 text-muted">
+                    <Building2 size={14} className="text-brand shrink-0" />
+                    <span>The National Treasury, Treasury Building, Harambee Ave, Nairobi</span>
+                  </div>
+                  <a
+                    href="https://www.treasury.go.ke"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-brand hover:text-brand-light font-bold hover:underline"
+                  >
+                    <span>Official Portal (treasury.go.ke)</span>
+                    <ExternalLink size={13} />
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

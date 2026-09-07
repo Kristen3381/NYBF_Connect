@@ -79,33 +79,12 @@ export default async function Home() {
     recentPoll = pollData;
     upcomingEvents = eventsData;
   } catch (error) {
-    // Graceful fallback for offline / preview rendering
-    opportunities = [
-      {
-        id: "1",
-        title: "Youth Entrepreneurship Programme",
-        type: "PROGRAMME",
-        location: "All 47 Counties",
-        deadline: new Date("2026-09-30"),
-      },
-      {
-        id: "2",
-        title: "Youth Policy Research Fellowship",
-        type: "FELLOWSHIP",
-        location: "Nairobi / Remote",
-        deadline: new Date("2026-10-15"),
-      },
-      {
-        id: "3",
-        title: "Digital Skills & AI Policy Internship",
-        type: "INTERNSHIP",
-        location: "Nairobi / Hybrid",
-        deadline: new Date("2026-10-10"),
-      },
-    ];
-    eventCount = 8;
-    moduleCount = 3;
-    activePolls = 4;
+    opportunities = [];
+    eventCount = 0;
+    moduleCount = 0;
+    activePolls = 0;
+    recentPoll = null;
+    upcomingEvents = [];
   }
 
   // Format recent poll for the client voting card
@@ -116,7 +95,7 @@ export default async function Home() {
         options: recentPoll.options.map((opt: any) => ({
           id: opt.id,
           label: opt.label,
-          count: opt._count.votes,
+          votesCount: opt._count.votes,
         })),
       }
     : undefined;
@@ -382,104 +361,63 @@ export default async function Home() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-3">
-          {/* Card 1 */}
-          <div className="group relative h-80 overflow-hidden rounded-3xl border border-white/20 bg-brand-dark shadow-xl transition-all duration-500 hover:-translate-y-1.5 hover:shadow-2xl">
-            <Image
-              src="/pictures/stage-presentation.jpeg"
-              alt="National Youth Budget Town Hall"
-              fill
-              className="object-cover transition duration-700 group-hover:scale-105"
-              sizes="(max-width: 768px) 100vw, 400px"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 p-6 text-white">
-              <span className="rounded-full bg-emerald-500/30 border border-emerald-400/40 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-300">
-                Hybrid • National
-              </span>
-              <h3 className="mt-3 font-serif text-xl font-bold leading-tight text-white">
-                National Youth Budget Town Hall
-              </h3>
-              <div className="mt-2 flex items-center justify-between text-xs text-white/80">
-                <span>12 September 2026</span>
-                <span className="flex items-center gap-1 font-semibold text-emerald-300">
-                  <MapPin size={12} /> Nairobi
-                </span>
-              </div>
-              <Link
-                href="/events"
-                className="mt-4 flex items-center justify-between border-t border-white/20 pt-3 text-xs font-bold uppercase tracking-wider text-white transition group-hover:text-emerald-300"
-              >
-                <span>Register Attendance</span>
-                <ArrowRight size={14} />
-              </Link>
-            </div>
-          </div>
+          {upcomingEvents.map((evt: any, idx: number) => {
+            const dateStr = evt.date instanceof Date
+              ? evt.date.toLocaleDateString("en-KE", { day: "numeric", month: "long", year: "numeric" })
+              : String(evt.date);
+            const photoSrc = evt.photo || (idx === 0
+              ? "/pictures/stage-presentation.jpeg"
+              : idx === 1
+              ? "/pictures/roundtable-overhead.jpeg"
+              : "/pictures/field-circle.jpeg");
+            const tagBadge = evt.tag || (idx === 0
+              ? "Hybrid • National"
+              : idx === 1
+              ? "County Dialogue"
+              : "Grassroots Forum");
+            const badgeClass = idx === 0
+              ? "bg-emerald-500/30 border-emerald-400/40 text-emerald-300"
+              : idx === 1
+              ? "bg-amber-500/30 border-amber-400/40 text-amber-300"
+              : "bg-sky-500/30 border-sky-400/40 text-sky-300";
 
-          {/* Card 2 */}
-          <div className="group relative h-80 overflow-hidden rounded-3xl border border-white/20 bg-brand-dark shadow-xl transition-all duration-500 hover:-translate-y-1.5 hover:shadow-2xl">
-            <Image
-              src="/pictures/roundtable-overhead.jpeg"
-              alt="Youth Economic Dialogue"
-              fill
-              className="object-cover transition duration-700 group-hover:scale-105"
-              sizes="(max-width: 768px) 100vw, 400px"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 p-6 text-white">
-              <span className="rounded-full bg-amber-500/30 border border-amber-400/40 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-300">
-                County Dialogue
-              </span>
-              <h3 className="mt-3 font-serif text-xl font-bold leading-tight text-white">
-                Youth Economic & Debt Dialogue
-              </h3>
-              <div className="mt-2 flex items-center justify-between text-xs text-white/80">
-                <span>26 September 2026</span>
-                <span className="flex items-center gap-1 font-semibold text-amber-300">
-                  <MapPin size={12} /> Machakos
-                </span>
-              </div>
-              <Link
-                href="/events"
-                className="mt-4 flex items-center justify-between border-t border-white/20 pt-3 text-xs font-bold uppercase tracking-wider text-white transition group-hover:text-amber-300"
+            return (
+              <div
+                key={evt.id || idx}
+                className="group relative h-80 overflow-hidden rounded-3xl border border-white/20 bg-brand-dark shadow-xl transition-all duration-500 hover:-translate-y-1.5 hover:shadow-2xl"
               >
-                <span>Register Attendance</span>
-                <ArrowRight size={14} />
-              </Link>
-            </div>
-          </div>
-
-          {/* Card 3 */}
-          <div className="group relative h-80 overflow-hidden rounded-3xl border border-white/20 bg-brand-dark shadow-xl transition-all duration-500 hover:-translate-y-1.5 hover:shadow-2xl">
-            <Image
-              src="/pictures/field-circle.jpeg"
-              alt="County Youth Budget Forum"
-              fill
-              className="object-cover transition duration-700 group-hover:scale-105"
-              sizes="(max-width: 768px) 100vw, 400px"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 p-6 text-white">
-              <span className="rounded-full bg-sky-500/30 border border-sky-400/40 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-sky-300">
-                Grassroots Forum
-              </span>
-              <h3 className="mt-3 font-serif text-xl font-bold leading-tight text-white">
-                County Youth Budget Circle
-              </h3>
-              <div className="mt-2 flex items-center justify-between text-xs text-white/80">
-                <span>03 October 2026</span>
-                <span className="flex items-center gap-1 font-semibold text-sky-300">
-                  <MapPin size={12} /> Kajiado
-                </span>
+                <Image
+                  src={photoSrc}
+                  alt={evt.title}
+                  fill
+                  className="object-cover transition duration-700 group-hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, 400px"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 p-6 text-white">
+                  <span className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${badgeClass}`}>
+                    {tagBadge}
+                  </span>
+                  <h3 className="mt-3 font-serif text-xl font-bold leading-tight text-white">
+                    {evt.title}
+                  </h3>
+                  <div className="mt-2 flex items-center justify-between text-xs text-white/80">
+                    <span>{dateStr}</span>
+                    <span className="flex items-center gap-1 font-semibold text-emerald-300">
+                      <MapPin size={12} /> {evt.location}
+                    </span>
+                  </div>
+                  <Link
+                    href="/events"
+                    className="mt-4 flex items-center justify-between border-t border-white/20 pt-3 text-xs font-bold uppercase tracking-wider text-white transition group-hover:text-emerald-300"
+                  >
+                    <span>Register Attendance</span>
+                    <ArrowRight size={14} />
+                  </Link>
+                </div>
               </div>
-              <Link
-                href="/events"
-                className="mt-4 flex items-center justify-between border-t border-white/20 pt-3 text-xs font-bold uppercase tracking-wider text-white transition group-hover:text-sky-300"
-              >
-                <span>Register Attendance</span>
-                <ArrowRight size={14} />
-              </Link>
-            </div>
-          </div>
+            );
+          })}
         </div>
       </section>
 
@@ -661,7 +599,7 @@ export default async function Home() {
           </h2>
 
           <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-white sm:text-lg sm:leading-8 text-shadow-strong">
-            Don&apos;t let politicians decide your economic future without your input. Join a growing digital movement of over 250,000 young Kenyans shaping national policy.
+            Don&apos;t let politicians decide your economic future without your input. Join a growing digital movement of young Kenyans across all 47 counties shaping national policy.
           </p>
 
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -736,7 +674,7 @@ export default async function Home() {
           <FooterColumn
             title="Governance"
             links={[
-              { label: "About NYBF", href: "/#about" },
+              { label: "About NYBF", href: "/about" },
               { label: "Constitution Art. 201 (Public Finance)", href: "https://kenyalaw.org" },
               { label: "Access to Info Act 2016", href: "https://kenyalaw.org" },
               { label: "Privacy Policy", href: "/join" },

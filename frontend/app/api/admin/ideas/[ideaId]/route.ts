@@ -14,14 +14,22 @@ const moderateSchema = z.object({
 // FR-5.5 / FR-8.3: admin approves/rejects submitted ideas
 export async function PATCH(
   req: Request,
-  { params }: { params: { ideaId: string } }
+  { params }: { params: { ideaId?: string; id?: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
-    const role = (session?.user as any)?.role;
+    if (!session || !(session.user as any)?.id) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
 
-    if (!session || role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    const role = (session.user as any).role;
+    if (role !== "ADMIN") {
+      return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
+    }
+
+    const ideaId = params.ideaId || params.id;
+    if (!ideaId) {
+      return NextResponse.json({ error: "Idea ID is required" }, { status: 400 });
     }
 
     const body = await req.json();
@@ -31,7 +39,7 @@ export async function PATCH(
     }
 
     const idea = await prisma.idea.update({
-      where: { id: params.ideaId },
+      where: { id: ideaId },
       data: parsed.data,
     });
 

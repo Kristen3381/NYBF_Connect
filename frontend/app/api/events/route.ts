@@ -15,42 +15,37 @@ export async function GET() {
     });
     return NextResponse.json({ events });
   } catch (error) {
-    return NextResponse.json({
-      events: [
-        {
-          id: "evt-1",
-          title: "National Youth Budget Summit 2026",
-          description: "Annual national gathering of youth budget delegates, civil society organizations, and Treasury officials.",
-          date: new Date(Date.now() + 86400000 * 14).toISOString(),
-          location: "KICC, Nairobi & Virtual Stream",
-          _count: { registrations: 340 },
-        },
-      ],
-    });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
 
 const createSchema = z.object({
-  title: z.string().min(3),
+  title: z.string().min(3, "Title must be at least 3 characters"),
   description: z.string().optional(),
-  date: z.string().datetime(),
-  location: z.string().min(2),
+  date: z.string(),
+  location: z.string().min(2, "Location is required"),
+  photo: z.string().optional(),
+  tag: z.string().optional(),
+  capacity: z.number().int().positive().optional(),
 });
 
 // FR-7.4: admins/coordinators create events
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    const role = (session?.user as any)?.role;
+    if (!session || !(session.user as any)?.id) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    }
 
-    if (!session || (role !== "ADMIN" && role !== "COORDINATOR")) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    const role = (session.user as any).role;
+    if (role !== "ADMIN" && role !== "COORDINATOR") {
+      return NextResponse.json({ error: "Forbidden: Admin or Coordinator access required" }, { status: 403 });
     }
 
     const body = await req.json();
     const parsed = createSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+      return NextResponse.json({ error: parsed.error.flatten().fieldErrors }, { status: 400 });
     }
 
     const event = await prisma.event.create({

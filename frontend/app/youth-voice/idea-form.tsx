@@ -28,13 +28,23 @@ export function IdeaForm() {
         body: JSON.stringify(form),
       });
 
-      if (!res.ok) {
-        // Optimistic success for preview
+      if (res.status === 401) {
+        setError("Please sign in to submit a policy proposal.");
+        setStatus("error");
+        return;
       }
-    } catch {
-      // Keep UX responsive
-    } finally {
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || "Failed to submit proposal. Please check your inputs.");
+        setStatus("error");
+        return;
+      }
+
       setStatus("success");
+    } catch {
+      setError("Network error. Please try again.");
+      setStatus("error");
     }
   }
 
@@ -115,7 +125,16 @@ export function IdeaForm() {
             </div>
           </div>
 
-          {error && <p className="text-xs font-semibold text-rose-600">{error}</p>}
+          {error && (
+            <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 p-3 text-xs font-semibold text-amber-600 dark:text-amber-400 flex items-center justify-between gap-2">
+              <span>{error}</span>
+              {error.includes("sign in") && (
+                <a href="/my-nybf" className="font-bold underline text-brand dark:text-brand-light shrink-0">
+                  Sign In &rarr;
+                </a>
+              )}
+            </div>
+          )}
 
           <button
             type="submit"

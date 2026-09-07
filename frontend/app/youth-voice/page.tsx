@@ -9,46 +9,6 @@ import { FooterColumn } from "@/components/ui-blocks";
 
 export const revalidate = 30;
 
-const fallbackPolls = [
-  {
-    id: "poll-1",
-    question: "Which fiscal priority should receive the highest increase in the FY 2026/27 Budget?",
-    category: "Macro Spending Priority",
-    active: true,
-    resultsVisible: true,
-    options: [
-      { id: "p1-opt-1", label: "Job creation & MSME startup grants (Hustler Fund reform)", votesCount: 5240 },
-      { id: "p1-opt-2", label: "Higher Education Loan Board (HELB) & free TVET capitation", votesCount: 4120 },
-      { id: "p1-opt-3", label: "Digital economy tax relief & local tech infrastructure", votesCount: 2980 },
-      { id: "p1-opt-4", label: "County healthcare facilities & youth mental health clinics", votesCount: 1840 },
-    ],
-  },
-  {
-    id: "poll-2",
-    question: "How should the Government fund university education and TVET colleges?",
-    category: "Higher Education Financing",
-    active: true,
-    resultsVisible: true,
-    options: [
-      { id: "p2-opt-1", label: "100% state scholarship for vulnerable and low-income students", votesCount: 6810 },
-      { id: "p2-opt-2", label: "Income-contingent loans with zero interest until formal employment", votesCount: 3940 },
-      { id: "p2-opt-3", label: "Public-private partnerships and corporate education levies", votesCount: 1420 },
-    ],
-  },
-  {
-    id: "poll-3",
-    question: "What is your biggest concern regarding County Government resource allocation?",
-    category: "Devolution Governance",
-    active: true,
-    resultsVisible: true,
-    options: [
-      { id: "p3-opt-1", label: "Lack of transparency in county bursary distributions", votesCount: 4620 },
-      { id: "p3-opt-2", label: "Non-compliance with the 30% AGPO youth procurement quota", votesCount: 3890 },
-      { id: "p3-opt-3", label: "Stalled ward development projects and pending bills", votesCount: 2710 },
-    ],
-  },
-];
-
 export default async function YouthVoicePage() {
   let polls: any[] = [];
 
@@ -61,14 +21,22 @@ export default async function YouthVoicePage() {
 
     if (dbPolls && dbPolls.length > 0) {
       polls = dbPolls.map((p, idx) => ({
-        ...p,
-        category: idx === 0 ? "National Priority" : "Devolution Governance",
+        id: p.id,
+        question: p.question,
+        category: p.category || (idx === 0 ? "National Priority" : "Devolution Governance"),
+        active: p.active,
+        resultsVisible: p.resultsVisible,
+        options: p.options.map((opt) => ({
+          id: opt.id,
+          label: opt.label,
+          votesCount: opt._count.votes,
+        })),
       }));
     } else {
-      polls = fallbackPolls;
+      polls = [];
     }
   } catch {
-    polls = fallbackPolls;
+    polls = [];
   }
 
   return (
@@ -117,9 +85,19 @@ export default async function YouthVoicePage() {
               <span className="text-xs font-bold text-muted">{polls.length} Polls Open</span>
             </div>
 
-            {polls.map((poll) => (
-              <PollCard key={poll.id} poll={poll} />
-            ))}
+            {polls.length === 0 ? (
+              <div className="rounded-3xl border border-line bg-surface p-12 text-center text-muted">
+                <MessageSquare size={40} className="mx-auto mb-3 text-muted/60" />
+                <h3 className="font-serif text-xl font-bold text-ink">No active consultations at this moment</h3>
+                <p className="mt-1.5 text-xs sm:text-sm text-muted max-w-sm mx-auto">
+                  New citizen pulse polls are scheduled for the next budget cycle. In the meantime, you can pitch a policy proposal in the form on the right.
+                </p>
+              </div>
+            ) : (
+              polls.map((poll) => (
+                <PollCard key={poll.id} poll={poll} />
+              ))
+            )}
           </div>
 
           {/* Right Column: Policy Pitch Form & Legislative Route */}
@@ -203,7 +181,7 @@ export default async function YouthVoicePage() {
           <FooterColumn
             title="Governance"
             links={[
-              { label: "About NYBF", href: "/#about" },
+              { label: "About NYBF", href: "/about" },
               { label: "Constitution Art. 201", href: "https://kenyalaw.org" },
               { label: "Join Network", href: "/join" },
             ]}

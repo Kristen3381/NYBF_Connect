@@ -4,8 +4,11 @@ import { notFound } from "next/navigation";
 import { Nav } from "@/components/nav";
 import { ArrowLeft, ArrowRight, CheckCircle2, Clock, BookOpen, Share2, Sparkles, ShieldCheck, Download } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { FooterColumn } from "@/components/ui-blocks";
 import { ModuleCompleteButton } from "./complete-button";
+import { DownloadGuideButton } from "./download-guide-button";
 
 export const revalidate = 300;
 
@@ -130,16 +133,32 @@ export default async function ModuleDetailPage({
   params: { moduleId: string };
 }) {
   let moduleData: any = null;
+  let isCompleted = false;
 
   try {
-    const dbModule = await prisma.budgetModule.findUnique({
-      where: { id: params.moduleId },
-    });
+    const session = await getServerSession(authOptions);
+    const userId = (session?.user as any)?.id;
+
+    const [dbModule, progress] = await Promise.all([
+      prisma.budgetModule.findUnique({
+        where: { id: params.moduleId },
+      }),
+      userId
+        ? prisma.moduleProgress.findUnique({
+            where: { userId_moduleId: { userId, moduleId: params.moduleId } },
+          })
+        : null,
+    ]);
+
+    if (progress?.completed) {
+      isCompleted = true;
+    }
+
     if (dbModule) {
       moduleData = {
         ...dbModule,
-        duration: "15 min read",
-        difficulty: "Curated Module",
+        duration: dbModule.duration || "15 min read",
+        difficulty: dbModule.difficulty || "Curated Module",
       };
     } else {
       moduleData = fallbackModulesMap[params.moduleId] || fallbackModulesMap["mod-1"];
@@ -148,6 +167,12 @@ export default async function ModuleDetailPage({
     moduleData = fallbackModulesMap[params.moduleId] || fallbackModulesMap["mod-1"];
   }
 
+  // Civic Finance Sequential Learning Path
+  const currentOrder = moduleData.order || 1;
+  const nextOrder = currentOrder + 1;
+  const nextModuleUrl = nextOrder <= 6 ? `/budget-hub/mod-${nextOrder}` : "/my-nybf";
+  const nextModuleLabel = nextOrder <= 6 ? `Next: Module 0${nextOrder} →` : "Complete Track & Claim Certificate →";
+
   return (
     <main className="min-h-screen text-ink selection:bg-brand/20 selection:text-brand">
       <Nav />
@@ -155,13 +180,17 @@ export default async function ModuleDetailPage({
       {/* Module Header Bar */}
       <section className="border-b border-line bg-brand-dark py-12 text-white sm:py-16">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-          <Link
-            href="/budget-hub"
-            className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-300 hover:text-white transition-colors mb-6"
-          >
-            <ArrowLeft size={15} />
-            <span>Back to Budget Hub</span>
-          </Link>
+          <div className="flex items-center justify-between gap-4 mb-6">
+            <Link
+              href="/budget-hub"
+              className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-300 hover:text-white transition-colors"
+            >
+              <ArrowLeft size={15} />
+              <span>Back to Budget Hub</span>
+            </Link>
+
+            <DownloadGuideButton moduleTitle={moduleData.title} moduleOrder={currentOrder} />
+          </div>
 
           <div className="flex flex-wrap items-center gap-3">
             <span className="rounded-xl bg-emerald-500/20 px-3 py-1 font-mono text-xs font-bold text-emerald-300 border border-emerald-500/30">
@@ -203,15 +232,18 @@ export default async function ModuleDetailPage({
             )}
           </div>
 
-          {/* Interactive Complete Button */}
+          {/* Interactive Actions & Sequence Navigation */}
           <div className="mt-12 border-t border-line pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <ModuleCompleteButton moduleId={moduleData.id} />
+            <div className="flex flex-wrap items-center gap-3">
+              <ModuleCompleteButton moduleId={moduleData.id} initialCompleted={isCompleted} />
+              <DownloadGuideButton moduleTitle={moduleData.title} moduleOrder={currentOrder} />
+            </div>
 
             <Link
-              href="/budget-hub"
-              className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted hover:text-brand transition-colors"
+              href={nextModuleUrl}
+              className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-brand hover:text-brand-light transition-colors"
             >
-              <span>Explore Next Module</span>
+              <span>{nextModuleLabel}</span>
               <ArrowRight size={14} />
             </Link>
           </div>
@@ -249,7 +281,7 @@ export default async function ModuleDetailPage({
           <FooterColumn
             title="Governance"
             links={[
-              { label: "About NYBF", href: "/#about" },
+              { label: "About NYBF", href: "/about" },
               { label: "Constitution Art. 201", href: "https://kenyalaw.org" },
             ]}
           />

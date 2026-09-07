@@ -12,6 +12,11 @@
 /build
 /dist
 
+# PWA service worker build artifacts
+public/sw*
+public/workbox-*
+public/fallback-*
+
 # TypeScript cache
 tsconfig.tsbuildinfo
 *.tsbuildinfo

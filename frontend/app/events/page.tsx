@@ -4,6 +4,7 @@ import { Nav } from "@/components/nav";
 import { CalendarDays, MapPin, Sparkles, Users, ArrowRight, ShieldCheck } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { RegisterButton } from "./register-button";
+import { RequestDialogueModal } from "./request-dialogue-modal";
 import { FooterColumn } from "@/components/ui-blocks";
 
 export const revalidate = 60;
@@ -84,19 +85,26 @@ export default async function EventsPage() {
   let events: any[] = [];
 
   try {
-    const dbEvents = await prisma.event.findMany({ orderBy: { date: "asc" } });
+    const dbEvents = await prisma.event.findMany({
+      include: { _count: { select: { registrations: true } } },
+      orderBy: { date: "asc" },
+    });
     if (dbEvents && dbEvents.length > 0) {
-      events = dbEvents.map((evt, idx) => ({
-        ...evt,
-        photo: photoPool[idx % photoPool.length],
-        tag: idx === 0 ? "Hybrid Summit" : "County Forum",
-        spotsLeft: 25 + (idx * 15) % 60,
-      }));
+      events = dbEvents.map((evt, idx) => {
+        const cap = evt.capacity || 100;
+        const reg = evt._count.registrations || 0;
+        return {
+          ...evt,
+          photo: evt.photo || photoPool[idx % photoPool.length],
+          tag: evt.tag || (idx === 0 ? "Hybrid Summit" : "County Forum"),
+          spotsLeft: Math.max(0, cap - reg),
+        };
+      });
     } else {
-      events = fallbackEvents;
+      events = [];
     }
   } catch {
-    events = fallbackEvents;
+    events = [];
   }
 
   return (
@@ -129,82 +137,98 @@ export default async function EventsPage() {
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/85 sm:text-lg">
             Physical townhalls and hybrid forums taking place across all 47 counties of Kenya. Meet county budget executives, dissect fiscal allocations, and voice youth priorities.
           </p>
+          <div className="mt-6 flex flex-wrap items-center gap-4">
+            <RequestDialogueModal
+              buttonLabel="Host a Constituency Dialogue"
+              className="inline-flex items-center gap-2 rounded-full bg-emerald-500 hover:bg-emerald-400 px-6 py-3 text-xs font-bold uppercase tracking-wider text-brand-dark shadow-lg transition-all"
+            />
+          </div>
         </div>
       </section>
 
       {/* EVENTS GRID */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {events.map((event) => {
-            const dateStr = event.date instanceof Date ? event.date.toLocaleDateString("en-KE", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            }) : String(event.date);
+        {events.length === 0 ? (
+          <div className="rounded-3xl border border-line bg-surface p-12 text-center">
+            <CalendarDays size={42} className="mx-auto text-muted mb-3" />
+            <h3 className="font-serif text-xl font-bold text-ink">No upcoming townhalls scheduled right now</h3>
+            <p className="mt-1.5 text-xs sm:text-sm text-muted max-w-md mx-auto">
+              County chapter hearings are being scheduled alongside County Assembly budget calendar releases. Check back soon or enter My NYBF to get notified.
+            </p>
+          </div>
+        ) : (
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {events.map((event) => {
+              const dateStr = event.date instanceof Date ? event.date.toLocaleDateString("en-KE", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              }) : String(event.date);
 
-            return (
-              <div
-                key={event.id}
-                className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-white/20 bg-brand-dark shadow-xl transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl"
-              >
-                {/* Poster Photo Header */}
-                <div className="relative aspect-[16/10] w-full overflow-hidden">
-                  <Image
-                    src={event.photo || "/pictures/stage-presentation.jpeg"}
-                    alt={event.title}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 400px"
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
-
-                  <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
-                    <span className="glass-panel-photo rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-300">
-                      {event.tag || "County Forum"}
-                    </span>
-                    <span className="glass-panel-photo rounded-full px-3 py-1 text-[10px] font-bold text-white/90">
-                      {event.spotsLeft ? `${event.spotsLeft} Seats Open` : "Open Event"}
-                    </span>
-                  </div>
-
-                  <div className="absolute bottom-3 left-4 right-4 text-white">
-                    <div className="flex items-center gap-1.5 text-xs text-emerald-300 font-semibold">
-                      <MapPin size={13} />
-                      <span>{event.location}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Body Content */}
-                <div className="flex flex-1 flex-col justify-between p-6 text-white">
-                  <div>
-                    <div className="flex items-center gap-1.5 text-xs text-white/60">
-                      <CalendarDays size={13} className="text-emerald-400" />
-                      <span>{dateStr}</span>
-                    </div>
-
-                    <h3 className="mt-3 font-serif text-xl font-bold leading-snug text-white group-hover:text-emerald-300 transition-colors">
-                      {event.title}
-                    </h3>
-
-                    <p className="mt-2.5 text-xs leading-relaxed text-white/75 line-clamp-3">
-                      {event.description || "Join fellow youth leaders, economic researchers and county representatives in an in-depth budget consultation session."}
-                    </p>
-                  </div>
-
-                  <div className="mt-6 flex items-center justify-between border-t border-white/15 pt-4">
-                    <RegisterButton
-                      eventId={event.id}
-                      eventTitle={event.title}
-                      eventDate={dateStr}
-                      eventLocation={event.location}
+              return (
+                <div
+                  key={event.id}
+                  className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-white/20 bg-brand-dark shadow-xl transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl"
+                >
+                  {/* Poster Photo Header */}
+                  <div className="relative aspect-[16/10] w-full overflow-hidden">
+                    <Image
+                      src={event.photo || "/pictures/stage-presentation.jpeg"}
+                      alt={event.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 400px"
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
                     />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
+
+                    <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
+                      <span className="glass-panel-photo rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-300">
+                        {event.tag || "County Forum"}
+                      </span>
+                      <span className="glass-panel-photo rounded-full px-3 py-1 text-[10px] font-bold text-white/90">
+                        {event.spotsLeft ? `${event.spotsLeft} Seats Open` : "Open Event"}
+                      </span>
+                    </div>
+
+                    <div className="absolute bottom-3 left-4 right-4 text-white">
+                      <div className="flex items-center gap-1.5 text-xs text-emerald-300 font-semibold">
+                        <MapPin size={13} />
+                        <span>{event.location}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Body Content */}
+                  <div className="flex flex-1 flex-col justify-between p-6 text-white">
+                    <div>
+                      <div className="flex items-center gap-1.5 text-xs text-white/60">
+                        <CalendarDays size={13} className="text-emerald-400" />
+                        <span>{dateStr}</span>
+                      </div>
+
+                      <h3 className="mt-3 font-serif text-xl font-bold leading-snug text-white group-hover:text-emerald-300 transition-colors">
+                        {event.title}
+                      </h3>
+
+                      <p className="mt-2.5 text-xs leading-relaxed text-white/75 line-clamp-3">
+                        {event.description || "Join fellow youth leaders, economic researchers and county representatives in an in-depth budget consultation session."}
+                      </p>
+                    </div>
+
+                    <div className="mt-6 flex items-center justify-between border-t border-white/15 pt-4">
+                      <RegisterButton
+                        eventId={event.id}
+                        eventTitle={event.title}
+                        eventDate={dateStr}
+                        eventLocation={event.location}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* HOST A FORUM BANNER */}
         <div className="mt-20 relative overflow-hidden rounded-3xl border border-line bg-surface p-8 sm:p-12 shadow-lg">
@@ -221,12 +245,16 @@ export default async function EventsPage() {
                 NYBF provides discussion toolkits, budget data summaries for your county, and speaker connections to help you host an impactful local dialogue.
               </p>
             </div>
-            <div className="lg:col-span-4 flex lg:justify-end">
+            <div className="lg:col-span-4 flex flex-col sm:flex-row lg:justify-end gap-3">
+              <RequestDialogueModal
+                buttonLabel="Host / Request a Dialogue"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-brand px-7 py-4 text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-brand/20 transition-all hover:bg-brand-light hover:shadow-lg"
+              />
               <Link
-                href="/join"
-                className="flex items-center gap-2 rounded-full bg-brand px-7 py-4 text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-brand/20 transition-all hover:bg-brand-light hover:shadow-lg"
+                href="/my-nybf"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-line bg-surface-soft px-5 py-4 text-xs font-bold uppercase tracking-wider text-ink transition-all hover:bg-surface"
               >
-                <span>Apply as Coordinator</span>
+                <span>Join Network</span>
                 <ArrowRight size={15} />
               </Link>
             </div>
@@ -266,7 +294,7 @@ export default async function EventsPage() {
           <FooterColumn
             title="Governance"
             links={[
-              { label: "About NYBF", href: "/#about" },
+              { label: "About NYBF", href: "/about" },
               { label: "Public Finance Act", href: "https://kenyalaw.org" },
               { label: "Join Network", href: "/my-nybf" },
             ]}
