@@ -6,7 +6,11 @@
     "dev": "npm --prefix frontend run dev",
     "build": "npm --prefix frontend run build",
     "vercel-build": "npm --prefix frontend run build",
+    "postinstall": "npm --prefix frontend install",
     "dev:backend": "npm --prefix backend run dev",
     "build:backend": "npm --prefix backend run build"
+  },
+  "dependencies": {
+    "next": "14.2.5"
   }
 }
