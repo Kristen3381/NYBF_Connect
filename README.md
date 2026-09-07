@@ -17,21 +17,32 @@ NYBF_Connect/
 │   ├── prisma/           # Database schema and seed scripts
 │   └── package.json      # Frontend scripts & dependencies
 │
-└── backend/              # Dedicated backend services & APIs
-    └── .gitkeep
+└── backend/              # Node.js / Express · TypeScript · Prisma API Engine
+    ├── src/              # Server, API routes (Auth, Admin, Polls, Events, Ideas, etc.), and services
+    ├── prisma/           # Database schema and seed scripts
+    └── package.json      # Backend scripts & dependencies
 ```
 
-## Running the Frontend
+## Running the Platform
 
-Navigate to the `frontend/` directory:
-
+### 1. Frontend (Next.js 14)
+Navigate to `frontend/`:
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Standalone Backend (Express API Engine)
+Navigate to `backend/`:
+```bash
+cd backend
+npm install
+npm run db:generate
+npm run dev
+```
+The API engine will start on [http://localhost:5000](http://localhost:5000). To route frontend API calls to this backend, set `BACKEND_URL="http://localhost:5000"` in `frontend/.env`.
 
 ### Quality & Type Checks (in `frontend/`):
 ```bash

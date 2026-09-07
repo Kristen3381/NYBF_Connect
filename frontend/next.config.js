@@ -74,6 +74,17 @@ const nextConfig = {
         hostname: "**",
       },
     ],
+  async rewrites() {
+    const backendUrl = process.env.BACKEND_URL;
+    if (!backendUrl) {
+      return [];
+    }
+    return [
+      {
+        source: "/api/:path((?!auth).*)",
+        destination: `${backendUrl}/api/:path*`,
+      },
+    ];
   },
 };
 

@@ -320,26 +320,6 @@ export default function MyNybfPage() {
     }
   }
 
-  async function handleDemoLogin() {
-    setAuthLoading(true);
-    setAuthError(null);
-    try {
-      const res = await signIn("credentials", {
-        email: "amani.mwangi@nybf.ke",
-        password: "Password123!",
-        redirect: false,
-      });
-      if (res?.ok) {
-        await loadUserData();
-      } else {
-        setIsAuthenticated(true);
-      }
-    } catch {
-      setIsAuthenticated(true);
-    } finally {
-      setAuthLoading(false);
-    }
-  }
 
   async function handleLogout() {
     await signOut({ redirect: false });
@@ -622,16 +602,6 @@ export default function MyNybfPage() {
                 </form>
               )}
 
-              {/* Quick Demo Login Option */}
-              <div className="mt-6 border-t border-line pt-4 text-center">
-                <button
-                  type="button"
-                  onClick={handleDemoLogin}
-                  className="text-xs font-bold text-brand dark:text-brand-light hover:underline"
-                >
-                  ⚡ Quick Demo: Enter as Member (Amani Mwangi)
-                </button>
-              </div>
             </div>
           </div>
         </section>

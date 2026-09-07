@@ -418,27 +418,6 @@ export default function AdminPage() {
     }
   }
 
-  async function handleQuickDemoAuth() {
-    setLoginLoading(true);
-    setLoginError(null);
-    try {
-      const res = await signIn("credentials", {
-        email: "admin@nybf.go.ke",
-        password: "Admin2026!",
-        otp: "123456",
-        redirect: false,
-      });
-      if (res?.ok) {
-        await loadAdminData();
-      } else {
-        setIsAuthenticated(true);
-      }
-    } catch {
-      setIsAuthenticated(true);
-    } finally {
-      setLoginLoading(false);
-    }
-  }
 
   async function handleLogout() {
     await signOut({ redirect: false });
@@ -1156,15 +1135,6 @@ export default function AdminPage() {
                 </form>
               )}
 
-              <div className="mt-6 border-t border-line pt-4 text-center">
-                <button
-                  type="button"
-                  onClick={handleQuickDemoAuth}
-                  className="text-xs font-bold text-brand dark:text-brand-light hover:underline"
-                >
-                  ⚡ Quick Demo: Unlock Admin Session
-                </button>
-              </div>
             </div>
           </div>
         </section>

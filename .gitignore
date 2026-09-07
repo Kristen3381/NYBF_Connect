@@ -13,6 +13,7 @@ frontend/.next/
 out/
 build/
 dist/
+backend/dist/
 
 # PWA service worker build artifacts
 frontend/public/sw*
