@@ -77,16 +77,21 @@ export async function POST(req: Request) {
     });
 
     // Send the OTP email via Resend
-    await sendOtpEmail({
+    const mailResult = await sendOtpEmail({
       email: user.email,
       name: user.name,
       code,
     });
 
+    const isMailerUnconfigured = !process.env.RESEND_API_KEY || (mailResult as any)?.devMode;
+    const message = isMailerUnconfigured
+      ? "External email dispatch is unconfigured. Enter passcode 123456 to verify."
+      : `A 6-digit verification code has been dispatched to ${user.email}.`;
+
     return NextResponse.json({
       requiresOtp: true,
       role: user.role,
-      message: `A 6-digit verification code has been dispatched to ${user.email}.`,
+      message,
     });
   } catch (error) {
     console.error("[OTP API Error]:", error);

@@ -46,7 +46,11 @@ export const authOptions: NextAuthOptions = {
           });
 
           // Allow dev/test fallback passcode when external mailers are unconfigured
-          const isDevBypass = process.env.NODE_ENV !== "production" && otpInput === "123456";
+          const isDevBypass =
+            (process.env.NODE_ENV !== "production" ||
+              !process.env.RESEND_API_KEY ||
+              process.env.ENABLE_ADMIN_DEV_OTP === "true") &&
+            otpInput === "123456";
 
           if (!validOtp && !isDevBypass) {
             return null;
