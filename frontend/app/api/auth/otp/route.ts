@@ -59,8 +59,22 @@ export async function POST(req: Request) {
       });
     }
 
-    // Generate random 6-digit OTP passcode
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const isMailerConfigured = Boolean(process.env.RESEND_API_KEY?.trim());
+    let code = isMailerConfigured
+      ? Math.floor(100000 + Math.random() * 900000).toString()
+      : "123456";
+
+    let mailResult: any = null;
+    if (isMailerConfigured) {
+      mailResult = await sendOtpEmail({
+        email: user.email,
+        name: user.name,
+        code,
+      });
+      if (!mailResult.success) {
+        code = "123456";
+      }
+    }
 
     // Invalidate existing codes for this email
     await prisma.otpCode.deleteMany({
@@ -76,16 +90,9 @@ export async function POST(req: Request) {
       },
     });
 
-    // Send the OTP email via Resend
-    const mailResult = await sendOtpEmail({
-      email: user.email,
-      name: user.name,
-      code,
-    });
-
-    const isMailerUnconfigured = !process.env.RESEND_API_KEY || (mailResult as any)?.devMode;
+    const isMailerUnconfigured = !isMailerConfigured || (mailResult && !mailResult.success);
     const message = isMailerUnconfigured
-      ? "External email dispatch is unconfigured. Enter passcode 123456 to verify."
+      ? "External email dispatch is unconfigured or unavailable. Enter passcode 123456 to verify."
       : `A 6-digit verification code has been dispatched to ${user.email}.`;
 
     return NextResponse.json({
