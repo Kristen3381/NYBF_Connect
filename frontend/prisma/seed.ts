@@ -23,14 +23,14 @@ async function main() {
   await prisma.user.deleteMany({});
 
   const defaultPasswordHash = await bcrypt.hash("Password123!", 10);
-  const adminPasswordHash = await bcrypt.hash("admin@123", 10);
+  const adminPasswordHash = await bcrypt.hash("abila@123", 10);
 
   // 1. Users
   const adminUser = await prisma.user.create({
     data: {
       name: "Abila Kamaloka",
       email: "abilakamaloka75@gmail.com",
-      phone: "0123456789",
+      phone: "0769778941",
       county: "Kakamega",
       constituency: "Luambi",
       civicRole: "Secretariat Lead",
