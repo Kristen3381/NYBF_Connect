@@ -53,6 +53,7 @@ export async function PATCH(
 
     return NextResponse.json({ event: updated });
   } catch (error) {
+    console.error("Failed to update event:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
@@ -75,6 +76,7 @@ export async function DELETE(
     await prisma.event.delete({ where: { id: params.eventId } });
     return NextResponse.json({ success: true });
   } catch (error) {
+    console.error("Failed to delete event:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

@@ -79,6 +79,7 @@ export default async function Home() {
     recentPoll = pollData;
     upcomingEvents = eventsData;
   } catch (error) {
+    console.error("Failed to load homepage data:", error);
     opportunities = [];
     eventCount = 0;
     moduleCount = 0;

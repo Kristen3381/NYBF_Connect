@@ -107,6 +107,7 @@ export async function POST(
       throw err;
     }
   } catch (error) {
+    console.error("Failed to submit vote:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
@@ -143,6 +144,7 @@ export async function DELETE(
       withdrawnOptionId: existingVote.pollOptionId,
     });
   } catch (error) {
+    console.error("Failed to withdraw vote:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

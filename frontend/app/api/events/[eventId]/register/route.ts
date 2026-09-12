@@ -63,6 +63,7 @@ export async function POST(
       throw dbErr;
     }
   } catch (error) {
+    console.error("Failed to register for event:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

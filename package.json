@@ -8,7 +8,15 @@
     "vercel-build": "npm --prefix frontend run build",
     "postinstall": "npm --prefix frontend install",
     "dev:backend": "npm --prefix backend run dev",
-    "build:backend": "npm --prefix backend run build"
+    "build:backend": "npm --prefix backend run build",
+    "db:push": "npm --prefix frontend run db:push",
+    "db:generate": "npm --prefix frontend run db:generate",
+    "db:migrate": "npm --prefix frontend run db:migrate",
+    "db:studio": "npm --prefix frontend run db:studio",
+    "db:seed": "npm --prefix frontend run db:seed"
+  },
+  "prisma": {
+    "schema": "frontend/prisma/schema.prisma"
   },
   "dependencies": {
     "next": "14.2.5"

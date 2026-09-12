@@ -73,6 +73,7 @@ export async function GET() {
       },
     });
   } catch (error) {
+    console.error("Failed to fetch user profile:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
@@ -117,6 +118,7 @@ export async function PATCH(req: Request) {
 
     return NextResponse.json({ user: updatedUser });
   } catch (error) {
+    console.error("Failed to update user profile:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

@@ -79,6 +79,7 @@ export async function GET() {
 
     return NextResponse.json({ requests });
   } catch (error) {
+    console.error("Failed to fetch event requests:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

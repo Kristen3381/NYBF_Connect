@@ -53,6 +53,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ progress }, { status: 200 });
   } catch (error) {
+    console.error("Failed to update module progress:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

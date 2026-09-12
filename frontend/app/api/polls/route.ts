@@ -32,7 +32,11 @@ export async function GET() {
 
     return NextResponse.json({ polls: formatted });
   } catch (error) {
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    console.error("Failed to fetch polls:", error);
+    return NextResponse.json(
+      { error: "Unable to load polls right now. Please try again shortly." },
+      { status: 500 }
+    );
   }
 }
 
@@ -87,6 +91,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ poll: formattedPoll }, { status: 201 });
   } catch (error) {
+    console.error("Failed to create poll:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

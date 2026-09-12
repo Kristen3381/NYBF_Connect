@@ -51,6 +51,7 @@ export async function PATCH(
 
     return NextResponse.json({ opportunity: updated });
   } catch (error) {
+    console.error("Failed to update opportunity:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
@@ -77,6 +78,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true, message: "Opportunity deleted successfully." });
   } catch (error) {
+    console.error("Failed to delete opportunity:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

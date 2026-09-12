@@ -25,7 +25,11 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ opportunities });
   } catch (error) {
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    console.error("Failed to fetch opportunities:", error);
+    return NextResponse.json(
+      { error: "Unable to load opportunities right now. Please try again shortly." },
+      { status: 500 }
+    );
   }
 }
 
@@ -68,6 +72,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ opportunity }, { status: 201 });
   } catch (error) {
+    console.error("Failed to create opportunity:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

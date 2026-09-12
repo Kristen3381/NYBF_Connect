@@ -54,6 +54,7 @@ export async function PATCH(
 
     return NextResponse.json({ idea });
   } catch (error) {
+    console.error("Failed to moderate idea:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

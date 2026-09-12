@@ -15,7 +15,11 @@ export async function GET() {
     });
     return NextResponse.json({ events });
   } catch (error) {
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    console.error("Failed to fetch events:", error);
+    return NextResponse.json(
+      { error: "Unable to load events right now. Please try again shortly." },
+      { status: 500 }
+    );
   }
 }
 
@@ -58,6 +62,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ event }, { status: 201 });
   } catch (error) {
+    console.error("Failed to create event:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

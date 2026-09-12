@@ -32,6 +32,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ idea }, { status: 201 });
   } catch (error) {
+    console.error("Failed to submit idea:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
@@ -76,6 +77,10 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ ideas });
   } catch (error) {
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    console.error("Failed to fetch ideas:", error);
+    return NextResponse.json(
+      { error: "Unable to load ideas right now. Please try again shortly." },
+      { status: 500 }
+    );
   }
 }
