@@ -5,40 +5,40 @@ import Image from "next/image";
 
 export const heroPhotos = [
   {
-    src: "/pictures/rally-flags.jpeg",
-    alt: "Young Kenyans raising national flags demanding budget transparency",
-    tag: "Civic Movement",
-    location: "Nairobi, Kenya",
+    src: "/pictures/national-townhall.jpeg",
+    alt: "Packed national townhall of Kenyan youth participating in economic policy debate",
+    tag: "National Townhall",
+    location: "Nairobi, KICC",
   },
   {
-    src: "/pictures/roundtable-overhead.jpeg",
-    alt: "Overhead view of youth leaders collaborating on NYBF Connect budget policy documents",
+    src: "/pictures/community-action.jpeg",
+    alt: "Young Kenyans collaborating on devolution budget accountability",
+    tag: "Community Action",
+    location: "County Devolution Desk",
+  },
+  {
+    src: "/pictures/civic-dialogue.jpeg",
+    alt: "Kenyan youth civic dialogue analyzing county resource allocation",
+    tag: "Civic Dialogue",
+    location: "Grassroots Assembly",
+  },
+  {
+    src: "/pictures/policy-roundtable.jpeg",
+    alt: "Youth policy roundtable formulating legislative amendments for public finance",
     tag: "Policy Strategy",
-    location: "National Forum",
+    location: "National Secretariat",
   },
   {
-    src: "/pictures/panel-speech.jpeg",
-    alt: "Young Kenyan delegate speaking into microphone at budget consultation panel",
-    tag: "Youth Voice",
-    location: "Consultation Stage",
+    src: "/pictures/youth-summit.jpeg",
+    alt: "Regional youth delegates at the devolution and AGPO economic summit",
+    tag: "Economic Summit",
+    location: "Rift Valley Hub",
   },
   {
-    src: "/pictures/auditorium-crowd.jpeg",
-    alt: "Packed auditorium of Kenyan youth participating in national economic debate",
-    tag: "Devolution Townhall",
-    location: "47 Counties",
-  },
-  {
-    src: "/pictures/field-circle.jpeg",
-    alt: "Grassroots youth group in a discussion circle in an open field",
-    tag: "Grassroots Pulse",
-    location: "Community Hub",
-  },
-  {
-    src: "/pictures/leaders-exterior.jpeg",
-    alt: "Group portrait of NYBF youth delegates outside conference venue",
-    tag: "Leadership Network",
-    location: "Nairobi Headquarters",
+    src: "/pictures/economic-forum.jpeg",
+    alt: "Youth leaders advancing transparency in ward development and bursary funds",
+    tag: "Devolution Forum",
+    location: "Western Kenya Hub",
   },
 ];
 

@@ -67,7 +67,7 @@ const articles: ArticleItem[] = [
     date: "28 August 2026",
     readTime: "6 min read",
     category: "Policy Analysis",
-    photo: "/pictures/roundtable-overhead.jpeg",
+    photo: "/pictures/policy-roundtable.jpeg",
     excerpt: "A line-by-line review of the newly gazetted Finance Act, detailing digital services tax exemptions and the reformed TVET training capitation fund.",
     body: `### 1. Executive Summary
 The enacted Finance Act contains critical fiscal policy adjustments directly impacting Kenya's informal economy and youth-led technology startups. Following public memorandums submitted during parliamentary committee hearings, key concessions were secured for digital workers and early-stage entrepreneurs.
@@ -87,7 +87,7 @@ Young citizens are encouraged to monitor local County Assembly budget committees
     date: "15 August 2026",
     readTime: "9 min read",
     category: "Macroeconomics",
-    photo: "/pictures/shillings-fan.jpeg",
+    photo: "/pictures/economic-forum.jpeg",
     excerpt: "Analyzing the amortization schedule of Kenya's Eurobond obligations and their direct squeeze on county equitable share disbursements.",
     body: `### 1. The Fiscal Reality
 Kenya's public debt portfolio has reached levels where debt servicing absorbs over 60% of ordinary tax revenue. This historic burden limits the state's capacity to finance development projects, TVET bursaries, and youth economic stimulus programs.
@@ -107,7 +107,7 @@ NYBF advocates for establishing a dedicated Public Debt Sinking Fund and enforci
     date: "04 August 2026",
     readTime: "7 min read",
     category: "Youth AGPO Guide",
-    photo: "/pictures/leaders-exterior.jpeg",
+    photo: "/pictures/community-action.jpeg",
     excerpt: "Step-by-step citizen guide to obtaining your AGPO Certificate, navigating eCitizen BRS, and submitting responsive county procurement bids.",
     body: `### 1. The Statutory Framework
 The Public Procurement and Asset Disposal Act (2015) mandates all procuring entities to allocate at least 30% of their annual procurement spend to enterprises owned by youth, women, and persons with disabilities.
@@ -130,7 +130,7 @@ const videos: VideoItem[] = [
     duration: "42:18",
     date: "12 August 2026",
     location: "KICC Nairobi",
-    photo: "/pictures/stage-presentation.jpeg",
+    photo: "/pictures/national-townhall.jpeg",
     views: "18.4K views",
     summary: "Comprehensive plenary debate between youth delegates, the Parliamentary Budget Office, and the National Treasury discussing the FY 2026/27 Budget Policy Statement.",
   },
@@ -140,7 +140,7 @@ const videos: VideoItem[] = [
     duration: "28:45",
     date: "22 July 2026",
     location: "Mombasa County Hub",
-    photo: "/pictures/panel-speech.jpeg",
+    photo: "/pictures/devolution-clinic.jpeg",
     views: "12.1K views",
     summary: "Grassroots symposium addressing equitable county resource allocation, bursary distribution transparency, and civic participation in ward public hearings.",
   },
@@ -150,7 +150,7 @@ const videos: VideoItem[] = [
     duration: "34:10",
     date: "10 July 2026",
     location: "Kajiado Chapter",
-    photo: "/pictures/field-circle.jpeg",
+    photo: "/pictures/grassroots-circle.jpeg",
     views: "9.8K views",
     summary: "Capacity building circle instructing youth community organizers on interrogating County Fiscal Strategy Papers and drafting formal public memoranda.",
   },
@@ -163,7 +163,7 @@ const podcasts: PodcastItem[] = [
     host: "NYBF Civic Media Desk with Special Guests from National Treasury",
     duration: "38 min",
     date: "25 August 2026",
-    photo: "/pictures/auditorium-crowd.jpeg",
+    photo: "/pictures/youth-summit.jpeg",
     tag: "Episode 14",
   },
   {
@@ -172,7 +172,7 @@ const podcasts: PodcastItem[] = [
     host: "NYBF Civic Media Desk & Devolved Policy Panel",
     duration: "44 min",
     date: "18 August 2026",
-    photo: "/pictures/roundtable-overhead.jpeg",
+    photo: "/pictures/civic-dialogue.jpeg",
     tag: "Episode 13",
   },
 ];
@@ -214,7 +214,7 @@ export default function MediaPage() {
                   date: formattedDate,
                   readTime: "5 min read",
                   category: item.tag || "Policy Analysis",
-                  photo: item.thumbnail || "/pictures/roundtable-overhead.jpeg",
+                  photo: item.thumbnail || "/pictures/policy-roundtable.jpeg",
                   excerpt: item.summary || item.body?.slice(0, 150) || "",
                   body: item.body || item.summary || "",
                 });
@@ -225,7 +225,7 @@ export default function MediaPage() {
                   duration: "Full Session",
                   date: formattedDate,
                   location: item.location || "Nairobi",
-                  photo: item.thumbnail || "/pictures/stage-presentation.jpeg",
+                  photo: item.thumbnail || "/pictures/national-townhall.jpeg",
                   views: "Verified Broadcast",
                   summary: item.summary || "",
                 });
@@ -236,7 +236,7 @@ export default function MediaPage() {
                   host: item.author || "NYBF Civic Media Desk",
                   duration: "Audio Episode",
                   date: formattedDate,
-                  photo: item.thumbnail || "/pictures/panel-speech.jpeg",
+                  photo: item.thumbnail || "/pictures/civic-dialogue.jpeg",
                   tag: item.tag || "Civic Audio",
                 });
               }
@@ -262,7 +262,7 @@ export default function MediaPage() {
       <section className="relative overflow-hidden border-b border-line bg-brand-dark py-16 text-white sm:py-24">
         <div className="absolute inset-0">
           <Image
-            src="/pictures/stage-presentation.jpeg"
+            src="/pictures/national-townhall.jpeg"
             alt="NYBF Media Hub"
             fill
             sizes="100vw"

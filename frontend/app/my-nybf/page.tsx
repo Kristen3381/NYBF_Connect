@@ -336,7 +336,7 @@ export default function MyNybfPage() {
         <section className="relative min-h-[calc(100vh-80px)] flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-brand-dark overflow-hidden">
           <div className="absolute inset-0">
             <Image
-              src="/pictures/leaders-exterior.jpeg"
+              src="/pictures/youth-delegates.jpeg"
               alt="NYBF Member Network"
               fill
               sizes="100vw"
@@ -628,7 +628,7 @@ export default function MyNybfPage() {
       <section className="relative overflow-hidden border-b border-line bg-brand-dark py-14 text-white sm:py-20">
         <div className="absolute inset-0">
           <Image
-            src="/pictures/leaders-exterior.jpeg"
+            src="/pictures/youth-delegates.jpeg"
             alt="My NYBF Dashboard"
             fill
             sizes="100vw"

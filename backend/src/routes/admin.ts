@@ -177,6 +177,11 @@ router.patch("/users/:userId", async (req: Request, res: Response) => {
       return res.status(404).json({ error: "User not found" });
     }
 
+    const { actorId } = getActor(req);
+    if (actorId && actorId === userId && parsed.data.role !== "ADMIN") {
+      return res.status(400).json({ error: "You cannot revoke your own administrator role." });
+    }
+
     const updated = await prisma.user.update({
       where: { id: userId },
       data: { role: parsed.data.role },
@@ -192,7 +197,6 @@ router.patch("/users/:userId", async (req: Request, res: Response) => {
       },
     });
 
-    const { actorId } = getActor(req);
     if (actorId) {
       await prisma.auditLog.create({
         data: {
@@ -219,6 +223,11 @@ router.patch("/users/:userId", async (req: Request, res: Response) => {
 router.delete("/users/:userId", async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
+    const { actorId } = getActor(req);
+    if (actorId && actorId === userId) {
+      return res.status(400).json({ error: "You cannot delete your own administrator account." });
+    }
+
     const targetUser = await prisma.user.findUnique({
       where: { id: userId },
     });

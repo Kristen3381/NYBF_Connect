@@ -47,8 +47,8 @@ export default async function YouthVoicePage() {
       <section className="relative overflow-hidden border-b border-line bg-brand-dark py-16 text-white sm:py-24">
         <div className="absolute inset-0">
           <Image
-            src="/pictures/panel-speech.jpeg"
-            alt="Youth voice in action"
+            src="/pictures/civic-dialogue.jpeg"
+            alt="Youth voice and consultation in action"
             fill
             sizes="100vw"
             className="object-cover opacity-60 object-center"

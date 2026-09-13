@@ -33,6 +33,7 @@ const executiveLeaders = [
       "Steering the National Executive Council and presiding over multi-county youth delegations. Leads strategic engagements with the National Treasury, Parliament's Budget Committee, and national development partners to champion equitable fiscal policies for Kenyan youth.",
     quote: "Our economy cannot prosper when youth are merely spectators in national budgeting. Article 201 guarantees our seat at the decision table.",
     badge: "Executive Council Lead",
+    email: null, // No contact details provided yet — do not invent or guess
   },
   {
     name: "Obade George",
@@ -43,6 +44,7 @@ const executiveLeaders = [
       "Directing operational execution, research synthesis, and county chapter coordination across all 47 devolved units. Coordinates the compilation and presentation of the National Youth Budget Memoranda before legislative committees.",
     quote: "Every public shilling allocated must have measurable impact on youth enterprise, TVET skills, and county devolution governance.",
     badge: "Executive Secretary",
+    email: "nybfsecretariat@gmail.com",
   },
 ];
 
@@ -55,7 +57,7 @@ export default function LeadershipPage() {
       <section className="relative overflow-hidden border-b border-line bg-brand-dark py-18 text-white sm:py-26">
         <div className="absolute inset-0">
           <Image
-            src="/pictures/auditorium-crowd.jpeg"
+            src="/pictures/national-townhall.jpeg"
             alt="National Youth Budget Forum Assembly"
             fill
             sizes="100vw"
@@ -148,13 +150,24 @@ export default function LeadershipPage() {
                     <MapPin size={13} className="text-brand" />
                     <span>National Secretariat (Nairobi)</span>
                   </span>
-                  <Link
-                    href="/my-nybf"
-                    className="flex items-center gap-1 text-brand hover:text-brand-light font-bold"
-                  >
-                    <span>Connect</span>
-                    <ArrowRight size={13} />
-                  </Link>
+                  {leader.email ? (
+                    <a
+                      href={`mailto:${leader.email}`}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-brand px-4 py-2 text-xs font-bold text-white hover:bg-brand-light transition-colors shadow-sm"
+                      title={`Send email to ${leader.name} (${leader.email})`}
+                    >
+                      <Mail size={13} />
+                      <span>Connect</span>
+                    </a>
+                  ) : (
+                    <span
+                      className="inline-flex items-center gap-1.5 rounded-full bg-muted/10 border border-line px-3 py-1.5 text-[11px] font-medium text-muted cursor-not-allowed opacity-80"
+                      title="Contact details coming soon"
+                    >
+                      <Mail size={12} className="opacity-50" />
+                      <span>Contact details coming soon</span>
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -259,7 +272,7 @@ export default function LeadershipPage() {
         <div className="mt-20 rounded-3xl border border-line bg-brand-dark p-8 sm:p-12 text-white relative overflow-hidden">
           <div className="absolute inset-0">
             <Image
-              src="/pictures/rally-flags.jpeg"
+              src="/pictures/community-action.jpeg"
               alt="Join NYBF"
               fill
               className="object-cover opacity-35 object-center"

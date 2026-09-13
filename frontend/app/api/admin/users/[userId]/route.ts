@@ -37,6 +37,14 @@ export async function PATCH(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    // Protect against self-demotion: an admin cannot revoke their own admin role
+    if (actorId === params.userId && parsed.data.role !== "ADMIN") {
+      return NextResponse.json(
+        { error: "You cannot revoke your own administrator role." },
+        { status: 400 }
+      );
+    }
+
     const updated = await prisma.user.update({
       where: { id: params.userId },
       data: { role: parsed.data.role },

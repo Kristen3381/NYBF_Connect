@@ -43,8 +43,8 @@ export default async function OpportunitiesPage() {
       <section className="relative overflow-hidden border-b border-line bg-brand-dark py-16 text-white sm:py-24">
         <div className="absolute inset-0">
           <Image
-            src="/pictures/roundtable-overhead.jpeg"
-            alt="Economic opportunities for youth"
+            src="/pictures/economic-forum.jpeg"
+            alt="Economic opportunities and youth enterprise forum"
             fill
             sizes="100vw"
             className="object-cover opacity-25 object-center"

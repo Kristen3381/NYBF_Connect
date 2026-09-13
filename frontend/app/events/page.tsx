@@ -14,9 +14,10 @@ const fallbackEvents = [
     id: "evt-1",
     title: "National Youth Budget Town Hall 2026",
     description: "Annual hybrid keynote bringing together 2,000+ youth leaders and the Parliamentary Budget Office to debate national resource allocation.",
-    date: new Date("2026-09-12T09:00:00"),
+    date: new Date("2026-09-24T09:00:00"),
+    registrationDeadline: new Date("2026-09-22T23:59:59"),
     location: "Nairobi (KICC & Online Live-Stream)",
-    photo: "/pictures/stage-presentation.jpeg",
+    photo: "/pictures/national-townhall.jpeg",
     tag: "Hybrid Summit",
     spotsLeft: 45,
   },
@@ -25,8 +26,9 @@ const fallbackEvents = [
     title: "Youth Economic & Public Debt Dialogue",
     description: "Deep dive into Kenya's debt service ratios, Eurobond obligations, and their impact on youth entrepreneurship and taxation.",
     date: new Date("2026-09-26T14:00:00"),
+    registrationDeadline: new Date("2026-09-25T18:00:00"),
     location: "Machakos County Hub",
-    photo: "/pictures/roundtable-overhead.jpeg",
+    photo: "/pictures/policy-roundtable.jpeg",
     tag: "Regional Roundtable",
     spotsLeft: 20,
   },
@@ -35,8 +37,9 @@ const fallbackEvents = [
     title: "County Youth Budget Forum & Devolution Clinic",
     description: "Grassroots public participation session on County Fiscal Strategy Papers (CFSP) and local bursary governance.",
     date: new Date("2026-10-03T10:00:00"),
+    registrationDeadline: new Date("2026-10-02T18:00:00"),
     location: "Kajiado County Council Hall",
-    photo: "/pictures/field-circle.jpeg",
+    photo: "/pictures/grassroots-circle.jpeg",
     tag: "Grassroots Circle",
     spotsLeft: 35,
   },
@@ -45,8 +48,9 @@ const fallbackEvents = [
     title: "Digital Economy & Youth TVET Funding Forum",
     description: "Examining digital taxes, freelancing incentives, and public investments in constituency tech hubs and TVET centers.",
     date: new Date("2026-10-18T11:00:00"),
+    registrationDeadline: new Date("2026-10-17T18:00:00"),
     location: "Mombasa Youth Center & Virtual",
-    photo: "/pictures/panel-speech.jpeg",
+    photo: "/pictures/forum-presentation.jpeg",
     tag: "Policy Panel",
     spotsLeft: 60,
   },
@@ -55,8 +59,9 @@ const fallbackEvents = [
     title: "Western Kenya Youth Agriculture & AGPO Summit",
     description: "Accessing the 30% Youth Public Procurement Quota (AGPO) and agricultural financing in the 2026/27 budget.",
     date: new Date("2026-11-05T09:30:00"),
+    registrationDeadline: new Date("2026-11-04T18:00:00"),
     location: "Kisumu City Hall",
-    photo: "/pictures/auditorium-crowd.jpeg",
+    photo: "/pictures/youth-summit.jpeg",
     tag: "Economic Summit",
     spotsLeft: 80,
   },
@@ -65,20 +70,21 @@ const fallbackEvents = [
     title: "National Youth Policy Working Group",
     description: "Final consolidation of youth budget amendments submitted to the Clerk of the National Assembly.",
     date: new Date("2026-11-20T10:00:00"),
+    registrationDeadline: new Date("2026-11-19T18:00:00"),
     location: "Nairobi Central",
-    photo: "/pictures/leaders-exterior.jpeg",
+    photo: "/pictures/economic-forum.jpeg",
     tag: "Delegates Assembly",
     spotsLeft: 15,
   },
 ];
 
 const photoPool = [
-  "/pictures/stage-presentation.jpeg",
-  "/pictures/roundtable-overhead.jpeg",
-  "/pictures/field-circle.jpeg",
-  "/pictures/panel-speech.jpeg",
-  "/pictures/auditorium-crowd.jpeg",
-  "/pictures/leaders-exterior.jpeg",
+  "/pictures/national-townhall.jpeg",
+  "/pictures/civic-dialogue.jpeg",
+  "/pictures/grassroots-circle.jpeg",
+  "/pictures/policy-roundtable.jpeg",
+  "/pictures/youth-summit.jpeg",
+  "/pictures/economic-forum.jpeg",
 ];
 
 export default async function EventsPage() {
@@ -93,11 +99,14 @@ export default async function EventsPage() {
       events = dbEvents.map((evt, idx) => {
         const cap = evt.capacity || 100;
         const reg = evt._count.registrations || 0;
+        const deadline = evt.registrationDeadline || evt.date;
+        const isClosed = new Date() > new Date(deadline);
         return {
           ...evt,
           photo: evt.photo || photoPool[idx % photoPool.length],
           tag: evt.tag || (idx === 0 ? "Hybrid Summit" : "County Forum"),
           spotsLeft: Math.max(0, cap - reg),
+          isClosed,
         };
       });
     } else {
@@ -115,7 +124,7 @@ export default async function EventsPage() {
       <section className="relative overflow-hidden border-b border-line bg-brand-dark py-16 text-white sm:py-24">
         <div className="absolute inset-0">
           <Image
-            src="/pictures/auditorium-crowd.jpeg"
+            src="/pictures/national-townhall.jpeg"
             alt="National Youth Budget Forum Townhall"
             fill
             sizes="100vw"
@@ -173,7 +182,7 @@ export default async function EventsPage() {
                   {/* Poster Photo Header */}
                   <div className="relative aspect-[16/10] w-full overflow-hidden">
                     <Image
-                      src={event.photo || "/pictures/stage-presentation.jpeg"}
+                      src={event.photo || "/pictures/national-townhall.jpeg"}
                       alt={event.title}
                       fill
                       sizes="(max-width: 768px) 100vw, 400px"
@@ -221,6 +230,18 @@ export default async function EventsPage() {
                         eventTitle={event.title}
                         eventDate={dateStr}
                         eventLocation={event.location}
+                        isClosed={event.isClosed}
+                        registrationDeadline={
+                          event.registrationDeadline
+                            ? event.registrationDeadline instanceof Date
+                              ? event.registrationDeadline.toLocaleDateString("en-KE", {
+                                  day: "numeric",
+                                  month: "long",
+                                  year: "numeric",
+                                })
+                              : String(event.registrationDeadline)
+                            : undefined
+                        }
                       />
                     </div>
                   </div>

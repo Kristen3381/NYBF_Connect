@@ -62,8 +62,8 @@ export function BudgetExplorer() {
       {/* Background Photography Asset with Scrim */}
       <div className="absolute inset-0">
         <Image
-          src="/pictures/shillings-fan.jpeg"
-          alt="Kenyan currency shillings fan"
+          src="/pictures/economic-forum.jpeg"
+          alt="Kenya budget analysis and economic forum"
           fill
           sizes="(max-width: 1024px) 100vw, 1200px"
           className="object-cover opacity-25 mix-blend-luminosity"

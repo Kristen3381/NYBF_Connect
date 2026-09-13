@@ -116,8 +116,8 @@ export function LivePulseVoting({ initialPoll }: PollProps) {
       <div className="lg:col-span-6 relative flex flex-col justify-between overflow-hidden rounded-3xl border border-white/20 bg-brand-dark p-6 sm:p-8 text-white shadow-2xl">
         <div className="absolute inset-0">
           <Image
-            src="/pictures/panel-speech.jpeg"
-            alt="Youth speaking on panel"
+            src="/pictures/civic-dialogue.jpeg"
+            alt="Youth dialogue and participation"
             fill
             sizes="(max-width: 1024px) 100vw, 600px"
             className="object-cover opacity-20"

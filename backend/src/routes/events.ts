@@ -117,6 +117,11 @@ router.post("/:eventId/register", async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Event not found" });
     }
 
+    const deadline = event.registrationDeadline || event.date;
+    if (new Date() > new Date(deadline)) {
+      return res.status(409).json({ error: "Registration for this event has closed." });
+    }
+
     if (event.capacity !== null && event.capacity !== undefined) {
       const currentRegistrations = await prisma.eventRegistration.count({
         where: { eventId },

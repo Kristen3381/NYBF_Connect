@@ -34,9 +34,9 @@ const opportunities = [
 ];
 
 const events = [
-  { title: "National Youth Budget Town Hall", date: "12 September 2026", location: "Nairobi", photo: "/pictures/stage-presentation.jpeg" },
-  { title: "Youth Economic Dialogue", date: "26 September 2026", location: "Machakos", photo: "/pictures/roundtable-overhead.jpeg" },
-  { title: "County Youth Budget Forum", date: "3 October 2026", location: "Kajiado", photo: "/pictures/field-circle.jpeg" },
+  { title: "National Youth Budget Town Hall", date: "12 September 2026", location: "Nairobi", photo: "/pictures/national-townhall.jpeg" },
+  { title: "Youth Economic Dialogue", date: "26 September 2026", location: "Machakos", photo: "/pictures/devolution-clinic.jpeg" },
+  { title: "County Youth Budget Forum", date: "3 October 2026", location: "Kajiado", photo: "/pictures/grassroots-circle.jpeg" },
 ];
 
 const pollOptions = ["Jobs & employment", "Education & skills", "Entrepreneurship", "Digital economy"];
@@ -138,7 +138,7 @@ export default function PreviewPage() {
       {/* BUDGET HUB — image as translucent background, not a boxed photo */}
       <section id="budget" className="relative overflow-hidden border-y border-line">
         <div className="absolute inset-0">
-          <Image src="/pictures/shillings-fan.jpeg" alt="" fill className="object-cover" sizes="100vw" />
+          <Image src="/pictures/budget-hearing.jpeg" alt="" fill className="object-cover" sizes="100vw" />
           <div className="absolute inset-0 bg-gradient-to-b from-brand-dark/95 via-brand-dark/90 to-brand-dark/95" />
           <div className="absolute inset-0 bg-black/30" />
         </div>
@@ -163,7 +163,7 @@ export default function PreviewPage() {
       {/* YOUTH VOICE — image as translucent background */}
       <section id="voice" className="relative overflow-hidden border-b border-line">
         <div className="absolute inset-0">
-          <Image src="/pictures/panel-speech.jpeg" alt="" fill className="object-cover" sizes="100vw" />
+          <Image src="/pictures/civic-dialogue.jpeg" alt="" fill className="object-cover" sizes="100vw" />
           <div className="absolute inset-0 bg-gradient-to-b from-brand-dark/90 via-brand-dark/85 to-brand-dark/90" />
           <div className="absolute inset-0 bg-black/30" />
         </div>
@@ -324,7 +324,7 @@ export default function PreviewPage() {
       {/* CTA */}
       <section className="relative overflow-hidden border-y border-line">
         <div className="absolute inset-0">
-          <Image src="/pictures/auditorium-crowd.jpeg" alt="" fill className="object-cover" sizes="100vw" />
+          <Image src="/pictures/youth-summit.jpeg" alt="" fill className="object-cover" sizes="100vw" />
           <div className="absolute inset-0 bg-gradient-to-br from-brand-dark/95 via-brand/85 to-brand-dark/95" />
           <div className="absolute inset-0 bg-black/30" />
         </div>

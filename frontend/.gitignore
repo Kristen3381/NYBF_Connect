@@ -16,6 +16,7 @@
 public/sw*
 public/workbox-*
 public/fallback-*
+public/uploads/
 
 # TypeScript cache
 tsconfig.tsbuildinfo

@@ -7,39 +7,39 @@ import { Sparkles, MessageSquare, ArrowRight, ShieldCheck, MapPin, Users } from 
 
 const photos = [
   {
-    src: "/pictures/rally-flags.jpeg",
+    src: "/pictures/community-action.jpeg",
     title: "National Youth Mobilization",
-    subtitle: "Rallying outside Parliament for open budget data",
+    subtitle: "Rallying for open budget data and youth empowerment",
     badge: "Civic Action",
     location: "Nairobi Central",
   },
   {
-    src: "/pictures/roundtable-overhead.jpeg",
+    src: "/pictures/policy-roundtable.jpeg",
     title: "Youth Budget Formulation",
-    subtitle: "Overhead analysis of fiscal allocation lines",
+    subtitle: "In-depth analysis of national fiscal allocation lines",
     badge: "Policy Review",
     location: "NYBF Executive Table",
   },
   {
-    src: "/pictures/panel-speech.jpeg",
+    src: "/pictures/civic-dialogue.jpeg",
     title: "Youth Voice at the Dais",
-    subtitle: "Delegates defending education loan funding",
+    subtitle: "Delegates defending education loan funding and TVET allocations",
     badge: "Direct Consultation",
     location: "National Forum",
   },
   {
-    src: "/pictures/auditorium-crowd.jpeg",
-    title: "2,400+ Delegates Gathered",
-    subtitle: "Universities & community chapters united",
+    src: "/pictures/youth-delegates.jpeg",
+    title: "County Delegates Convened",
+    subtitle: "Community and university chapters united across Kenya",
     badge: "Devolution Reach",
     location: "47 Counties",
   },
   {
-    src: "/pictures/field-circle.jpeg",
+    src: "/pictures/grassroots-circle.jpeg",
     title: "Grassroots County Circles",
     subtitle: "Devolved economic dialogues in local communities",
     badge: "County Pulse",
-    location: "Rift Valley / Coast / Nyanza",
+    location: "Grassroots Chapters",
   },
 ];
 

@@ -10,6 +10,7 @@ const updateEventSchema = z.object({
   title: z.string().min(3).optional(),
   description: z.string().optional(),
   date: z.string().optional(),
+  registrationDeadline: z.string().optional().nullable(),
   location: z.string().min(2).optional(),
   photo: z.string().optional().nullable(),
   tag: z.string().optional(),
@@ -47,6 +48,9 @@ export async function PATCH(
       data: {
         ...parsed.data,
         date: parsed.data.date ? new Date(parsed.data.date) : undefined,
+        registrationDeadline: parsed.data.registrationDeadline !== undefined
+          ? (parsed.data.registrationDeadline ? new Date(parsed.data.registrationDeadline) : null)
+          : undefined,
       },
       include: { _count: { select: { registrations: true } } },
     });

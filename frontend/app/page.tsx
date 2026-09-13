@@ -284,7 +284,7 @@ export default async function Home() {
       <section id="opportunities" className="relative overflow-hidden border-t border-line bg-brand-dark py-20 text-white sm:py-28">
         <div className="absolute inset-0">
           <Image
-            src="/pictures/roundtable-overhead.jpeg"
+            src="/pictures/economic-forum.jpeg"
             alt="Youth policy roundtable"
             fill
             sizes="100vw"
@@ -367,10 +367,10 @@ export default async function Home() {
               ? evt.date.toLocaleDateString("en-KE", { day: "numeric", month: "long", year: "numeric" })
               : String(evt.date);
             const photoSrc = evt.photo || (idx === 0
-              ? "/pictures/stage-presentation.jpeg"
+              ? "/pictures/national-townhall.jpeg"
               : idx === 1
-              ? "/pictures/roundtable-overhead.jpeg"
-              : "/pictures/field-circle.jpeg");
+              ? "/pictures/devolution-clinic.jpeg"
+              : "/pictures/grassroots-circle.jpeg");
             const tagBadge = evt.tag || (idx === 0
               ? "Hybrid • National"
               : idx === 1
@@ -429,8 +429,8 @@ export default async function Home() {
             <div className="lg:col-span-6 relative overflow-hidden rounded-3xl border border-line shadow-2xl">
               <div className="relative aspect-[16/11] w-full">
                 <Image
-                  src="/pictures/leaders-exterior.jpeg"
-                  alt="NYBF Youth Leaders Gathering"
+                  src="/pictures/community-action.jpeg"
+                  alt="NYBF Youth Leaders and Delegates"
                   fill
                   className="object-cover"
                   sizes="(max-width: 1024px) 100vw, 600px"
@@ -580,7 +580,7 @@ export default async function Home() {
       <section className="relative overflow-hidden border-y border-line bg-brand-dark py-24 sm:py-32">
         <div className="absolute inset-0">
           <Image
-            src="/pictures/rally-flags.jpeg"
+            src="/pictures/citizen-caucus.jpeg"
             alt="Young Kenyans rallying for public participation"
             fill
             className="object-cover object-center"

@@ -1,5 +1,14 @@
 import { PrismaClient, Role, OpportunityType, IdeaStatus, MediaType } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
+
+if (typeof (process as any).loadEnvFile === "function") {
+  try {
+    (process as any).loadEnvFile();
+  } catch {
+    // ignore if already loaded or not found
+  }
+}
 
 const prisma = new PrismaClient();
 
@@ -22,17 +31,22 @@ async function main() {
   await prisma.idea.deleteMany({});
   await prisma.user.deleteMany({});
 
-  const defaultPasswordHash = await bcrypt.hash("Password123!", 10);
-  const adminPasswordHash = await bcrypt.hash("abila@123", 10);
+  const defaultPasswordHash = await bcrypt.hash(process.env.SEED_USER_PASSWORD || "Password123!", 10);
+
+  // Security requirement: The plaintext admin password must never be committed to git or seed.ts.
+  // We read from process.env.ADMIN_PASSWORD, or generate a cryptographically strong fallback if absent.
+  const adminPlainPassword = process.env.ADMIN_PASSWORD || crypto.randomBytes(16).toString("base64url") + "!2026";
+  const adminPasswordHash = await bcrypt.hash(adminPlainPassword, 10);
 
   // 1. Users
+  // Real Secretariat Lead Admin: Obade George
   const adminUser = await prisma.user.create({
     data: {
-      name: "Abila Kamaloka",
-      email: "abilakamaloka75@gmail.com",
+      name: "Obade George",
+      email: "nybfsecretariat@gmail.com",
       phone: "0769778941",
-      county: "Kakamega",
-      constituency: "Luambi",
+      county: "Nairobi",
+      constituency: "Westlands",
       civicRole: "Secretariat Lead",
       role: Role.ADMIN,
       passwordHash: adminPasswordHash,
@@ -309,15 +323,16 @@ The greatest risk to youth development is debt servicing crowding out developmen
     await prisma.opportunity.create({ data: opp });
   }
 
-  // 4. Events
+  // 4. Events (Town Halls and County Youth Forums)
   const events = [
     {
       id: "evt-1",
       title: "National Youth Budget Town Hall 2026",
       description: "Annual hybrid keynote bringing together 2,000+ youth leaders and the Parliamentary Budget Office to debate national resource allocation.",
       date: new Date("2026-09-12T09:00:00Z"),
+      registrationDeadline: new Date("2026-09-10T23:59:59Z"),
       location: "Nairobi (KICC & Online Live-Stream)",
-      photo: "/pictures/stage-presentation.jpeg",
+      photo: "/pictures/national-townhall.jpeg",
       tag: "Hybrid Summit",
       capacity: 500,
       createdBy: adminUser.id,
@@ -327,8 +342,9 @@ The greatest risk to youth development is debt servicing crowding out developmen
       title: "Youth Economic & Public Debt Dialogue",
       description: "Deep dive into Kenya's debt service ratios, Eurobond obligations, and their impact on youth entrepreneurship and taxation.",
       date: new Date("2026-09-26T14:00:00Z"),
+      registrationDeadline: new Date("2026-09-24T23:59:59Z"),
       location: "Machakos County Hub",
-      photo: "/pictures/roundtable-overhead.jpeg",
+      photo: "/pictures/economic-forum.jpeg",
       tag: "Regional Roundtable",
       capacity: 100,
       createdBy: adminUser.id,
@@ -338,8 +354,9 @@ The greatest risk to youth development is debt servicing crowding out developmen
       title: "County Youth Budget Forum & Devolution Clinic",
       description: "Grassroots public participation session on County Fiscal Strategy Papers (CFSP) and local bursary governance.",
       date: new Date("2026-10-03T10:00:00Z"),
+      registrationDeadline: new Date("2026-10-01T23:59:59Z"),
       location: "Kajiado County Council Hall",
-      photo: "/pictures/field-circle.jpeg",
+      photo: "/pictures/grassroots-circle.jpeg",
       tag: "Grassroots Circle",
       capacity: 100,
       createdBy: coordinatorUser.id,
@@ -349,8 +366,9 @@ The greatest risk to youth development is debt servicing crowding out developmen
       title: "Digital Economy & Youth TVET Funding Forum",
       description: "Examining digital taxes, freelancing incentives, and public investments in constituency tech hubs and TVET centers.",
       date: new Date("2026-10-18T11:00:00Z"),
+      registrationDeadline: new Date("2026-10-16T23:59:59Z"),
       location: "Mombasa Youth Center & Virtual",
-      photo: "/pictures/panel-speech.jpeg",
+      photo: "/pictures/civic-dialogue.jpeg",
       tag: "Policy Panel",
       capacity: 150,
       createdBy: adminUser.id,
@@ -360,8 +378,9 @@ The greatest risk to youth development is debt servicing crowding out developmen
       title: "Western Kenya Youth Agriculture & AGPO Summit",
       description: "Accessing the 30% Youth Public Procurement Quota (AGPO) and agricultural financing in the 2026/27 budget.",
       date: new Date("2026-11-05T09:30:00Z"),
+      registrationDeadline: new Date("2026-11-03T23:59:59Z"),
       location: "Kisumu City Hall",
-      photo: "/pictures/auditorium-crowd.jpeg",
+      photo: "/pictures/county-assembly.jpeg",
       tag: "Economic Summit",
       capacity: 200,
       createdBy: coordinatorUser.id,
@@ -371,8 +390,9 @@ The greatest risk to youth development is debt servicing crowding out developmen
       title: "National Youth Policy Working Group",
       description: "Final consolidation of youth budget amendments submitted to the Clerk of the National Assembly.",
       date: new Date("2026-11-20T10:00:00Z"),
+      registrationDeadline: new Date("2026-11-18T23:59:59Z"),
       location: "Nairobi Central",
-      photo: "/pictures/leaders-exterior.jpeg",
+      photo: "/pictures/youth-delegates.jpeg",
       tag: "Delegates Assembly",
       capacity: 80,
       createdBy: adminUser.id,
@@ -447,6 +467,25 @@ The greatest risk to youth development is debt servicing crowding out developmen
     include: { options: true },
   });
 
+  const poll4 = await prisma.poll.create({
+    data: {
+      id: "poll-4",
+      question: "Which systemic reform would most effectively unlock the 30% AGPO public procurement quota for youth enterprises?",
+      category: "Youth AGPO & Public Procurement",
+      active: true,
+      resultsVisible: true,
+      options: {
+        create: [
+          { label: "Enforce mandatory 30-day invoice payment timelines for youth suppliers" },
+          { label: "Eliminate bid bond guarantees and performance securities for youth tenders" },
+          { label: "Publish all county unbundled youth tender award registers online" },
+          { label: "Establish a dedicated invoice discounting desk at local financial institutions" },
+        ],
+      },
+    },
+    include: { options: true },
+  });
+
   // Cast sample votes
   // Member votes in Poll 1 for option 2 (HELB)
   await prisma.vote.create({
@@ -454,6 +493,15 @@ The greatest risk to youth development is debt servicing crowding out developmen
       userId: memberUser.id,
       pollId: poll1.id,
       pollOptionId: poll1.options[1].id,
+    },
+  });
+
+  // Member votes in Poll 4 for option 1 (Prompt Payment)
+  await prisma.vote.create({
+    data: {
+      userId: memberUser.id,
+      pollId: poll4.id,
+      pollOptionId: poll4.options[0].id,
     },
   });
 
@@ -474,6 +522,13 @@ The greatest risk to youth development is debt servicing crowding out developmen
           userId: u.id,
           pollId: poll2.id,
           pollOptionId: poll2.options[i % poll2.options.length].id,
+        },
+      });
+      await prisma.vote.create({
+        data: {
+          userId: u.id,
+          pollId: poll4.id,
+          pollOptionId: poll4.options[i % poll4.options.length].id,
         },
       });
     }
@@ -541,7 +596,7 @@ The greatest risk to youth development is debt servicing crowding out developmen
     data: {
       title: "Decoding the Finance Act 2026: What Changed for Youth and Tech Freelancers?",
       type: MediaType.ARTICLE,
-      thumbnail: "/pictures/roundtable-overhead.jpeg",
+      thumbnail: "/pictures/policy-roundtable.jpeg",
       author: "NYBF Policy Research Desk",
       tag: "Policy Analysis",
       summary: "A line-by-line review of the gazetted Finance Act, detailing digital services tax exemptions and the reformed TVET training capitation fund.",
@@ -553,7 +608,7 @@ The greatest risk to youth development is debt servicing crowding out developmen
     data: {
       title: "Kenya's Public Debt Dilemma: Why Debt Servicing Exceeds 60% of Ordinary Revenue",
       type: MediaType.ARTICLE,
-      thumbnail: "/pictures/shillings-fan.jpeg",
+      thumbnail: "/pictures/economic-forum.jpeg",
       author: "NYBF Economics & Fiscal Desk",
       tag: "Macroeconomics",
       summary: "Analyzing the amortization schedule of Kenya's Eurobond obligations and their direct squeeze on county equitable share disbursements.",
@@ -566,7 +621,7 @@ The greatest risk to youth development is debt servicing crowding out developmen
       title: "Townhall Broadcast: Youth Priorities for the Medium Term Expenditure Framework",
       type: MediaType.VIDEO,
       url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-      thumbnail: "/pictures/stage-presentation.jpeg",
+      thumbnail: "/pictures/national-townhall.jpeg",
       location: "KICC Amphitheatre, Nairobi",
       tag: "National Keynote",
       summary: "Full recording of the keynote plenary with Parliamentary Budget Office analysts and delegates from 47 counties.",
@@ -578,7 +633,7 @@ The greatest risk to youth development is debt servicing crowding out developmen
       title: "The Youth Exchequer Ep. 14: How County Assemblies Allocate Ward Development Funds",
       type: MediaType.PODCAST,
       author: "Dr. Evans Kiprop (Lead Devolution Fellow)",
-      thumbnail: "/pictures/panel-speech.jpeg",
+      thumbnail: "/pictures/civic-dialogue.jpeg",
       tag: "Audio Episode",
       summary: "Demystifying the County Fiscal Strategy Paper (CFSP) and how youth groups can audit ward bursary allocations.",
     },
@@ -620,4 +675,5 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect();
+    process.exit(0);
   });

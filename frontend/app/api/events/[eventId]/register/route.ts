@@ -25,6 +25,15 @@ export async function POST(
       return NextResponse.json({ error: "Event not found" }, { status: 404 });
     }
 
+    // Check event registration deadline
+    const deadline = event.registrationDeadline || event.date;
+    if (new Date() > new Date(deadline)) {
+      return NextResponse.json(
+        { error: "Registration for this event has closed." },
+        { status: 409 }
+      );
+    }
+
     // Check event capacity
     if (event.capacity !== null && event.capacity !== undefined) {
       const currentRegistrations = await prisma.eventRegistration.count({

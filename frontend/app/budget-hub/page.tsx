@@ -98,8 +98,8 @@ export default async function BudgetHubPage() {
       <section className="relative overflow-hidden border-b border-line bg-brand-dark py-16 text-white sm:py-24">
         <div className="absolute inset-0">
           <Image
-            src="/pictures/shillings-fan.jpeg"
-            alt="Kenyan Shilling notes"
+            src="/pictures/budget-hearing.jpeg"
+            alt="National Youth Budget Forum hearing and workshop"
             fill
             sizes="100vw"
             className="object-cover opacity-60 object-center"
@@ -212,8 +212,8 @@ export default async function BudgetHubPage() {
         <div className="mt-20 relative overflow-hidden rounded-3xl border border-white/20 bg-brand-dark p-8 sm:p-12 text-white shadow-xl">
           <div className="absolute inset-0">
             <Image
-              src="/pictures/roundtable-overhead.jpeg"
-              alt="Youth budget toolkits"
+              src="/pictures/policy-roundtable.jpeg"
+              alt="Youth budget toolkits and audit roundtable"
               fill
               className="object-cover opacity-50 object-center"
             />

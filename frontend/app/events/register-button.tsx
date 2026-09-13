@@ -1,18 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, CheckCircle2, Loader2, Sparkles, X, Calendar, MapPin, Ticket } from "lucide-react";
+import { ArrowRight, CheckCircle2, Loader2, Sparkles, X, Calendar, MapPin, Ticket, XCircle } from "lucide-react";
 
 export function RegisterButton({
   eventId,
   eventTitle,
   eventDate,
   eventLocation,
+  isClosed = false,
+  registrationDeadline,
 }: {
   eventId: string;
   eventTitle?: string;
   eventDate?: string;
   eventLocation?: string;
+  isClosed?: boolean;
+  registrationDeadline?: string;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
@@ -36,7 +40,13 @@ export function RegisterButton({
         return;
       }
       if (res.status === 409) {
-        setStatus("done");
+        const data = await res.json().catch(() => ({}));
+        if (data.error && data.error.toLowerCase().includes("already registered")) {
+          setStatus("done");
+          return;
+        }
+        setStatus("error");
+        setErrorMessage(data.error || "Registration for this event has closed.");
         return;
       }
       if (!res.ok) {
@@ -50,6 +60,21 @@ export function RegisterButton({
       setStatus("error");
       setErrorMessage("Network error. Please try again.");
     }
+  }
+
+  if (isClosed) {
+    return (
+      <button
+        type="button"
+        disabled
+        aria-disabled="true"
+        className="inline-flex items-center gap-1.5 rounded-full bg-white/10 border border-white/20 px-3.5 py-1.5 text-xs font-semibold text-white/50 cursor-not-allowed select-none"
+        title="Registration for this event has closed"
+      >
+        <XCircle size={14} className="text-white/40" />
+        <span>Registration Closed</span>
+      </button>
+    );
   }
 
   return (

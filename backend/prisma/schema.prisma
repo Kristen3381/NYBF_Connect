@@ -173,17 +173,18 @@ model Opportunity {
 // --- Events (FR-7.x) ---
 
 model Event {
-  id          String   @id @default(cuid())
-  title       String
-  description String?  @db.Text
-  date        DateTime
-  location    String
-  photo       String?
-  tag         String?
-  capacity    Int?     @default(100)
-  createdBy   String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                   String              @id @default(cuid())
+  title                String
+  description          String?             @db.Text
+  date                 DateTime
+  registrationDeadline DateTime?
+  location             String
+  photo                String?
+  tag                  String?
+  capacity             Int?                @default(100)
+  createdBy            String
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
 
   registrations EventRegistration[]
 }

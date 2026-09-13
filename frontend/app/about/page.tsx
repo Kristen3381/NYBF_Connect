@@ -56,7 +56,7 @@ export default function AboutPage() {
       <section className="relative overflow-hidden border-b border-line bg-brand-dark py-20 text-white sm:py-28">
         <div className="absolute inset-0">
           <Image
-            src="/pictures/leaders-exterior.jpeg"
+            src="/pictures/national-townhall.jpeg"
             alt="National Youth Budget Forum Delegates"
             fill
             sizes="100vw"
@@ -117,7 +117,7 @@ export default function AboutPage() {
 
           <div className="lg:col-span-6 relative aspect-[4/3] overflow-hidden rounded-3xl border border-line shadow-xl">
             <Image
-              src="/pictures/auditorium-crowd.jpeg"
+              src="/pictures/youth-delegates.jpeg"
               alt="Youth forum auditorium"
               fill
               className="object-cover"

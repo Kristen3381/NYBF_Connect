@@ -27,6 +27,7 @@ const createSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
   description: z.string().optional(),
   date: z.string(),
+  registrationDeadline: z.string().optional().nullable(),
   location: z.string().min(2, "Location is required"),
   photo: z.string().optional(),
   tag: z.string().optional(),
@@ -56,6 +57,9 @@ export async function POST(req: Request) {
       data: {
         ...parsed.data,
         date: new Date(parsed.data.date),
+        registrationDeadline: parsed.data.registrationDeadline
+          ? new Date(parsed.data.registrationDeadline)
+          : null,
         createdBy: (session.user as any).id,
       },
     });

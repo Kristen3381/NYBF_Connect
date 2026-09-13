@@ -106,6 +106,10 @@ export async function GET() {
         tag: e.tag || "Public Hearing",
         date: e.date.toLocaleDateString("en-KE", { day: "numeric", month: "short", year: "numeric" }),
         rawDate: e.date.toISOString().split("T")[0],
+        registrationDeadline: e.registrationDeadline
+          ? e.registrationDeadline.toLocaleDateString("en-KE", { day: "numeric", month: "short", year: "numeric" })
+          : null,
+        rawDeadline: e.registrationDeadline ? e.registrationDeadline.toISOString().split("T")[0] : null,
         registered: e._count.registrations,
         capacity: e.capacity || 100,
       })),

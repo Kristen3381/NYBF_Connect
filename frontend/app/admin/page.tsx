@@ -39,6 +39,8 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { FooterColumn } from "@/components/ui-blocks";
+import { EventImagePicker } from "@/components/event-image-picker";
+import { FileUploadInput } from "@/components/file-upload-input";
 
 type AdminTab = "analytics" | "members" | "events" | "requests" | "opportunities" | "polls" | "media" | "ideas";
 type AdminAuthMode = "signin" | "signup";
@@ -62,6 +64,8 @@ interface EventItem {
   location: string;
   date: string;
   rawDate?: string;
+  registrationDeadline?: string;
+  rawDeadline?: string;
   registered: number;
   capacity: number;
   tag?: string;
@@ -182,10 +186,11 @@ export default function AdminPage() {
   const [addEventForm, setAddEventForm] = useState({
     title: "",
     date: "",
+    registrationDeadline: "",
     location: "",
     tag: "Public Hearing",
     capacity: 100,
-    photo: "/pictures/stage-presentation.jpeg",
+    photo: "/pictures/national-townhall.jpeg",
     description: "",
   });
   const [addEventLoading, setAddEventLoading] = useState(false);
@@ -232,7 +237,7 @@ export default function AdminPage() {
     title: "",
     type: "ARTICLE",
     url: "",
-    thumbnail: "/pictures/roundtable-overhead.jpeg",
+    thumbnail: "/pictures/policy-roundtable.jpeg",
     author: "NYBF Policy Research Desk",
     location: "Nairobi",
     summary: "",
@@ -463,6 +468,9 @@ export default function AdminPage() {
         body: JSON.stringify({
           title: addEventForm.title,
           date: new Date(addEventForm.date).toISOString(),
+          registrationDeadline: addEventForm.registrationDeadline
+            ? new Date(addEventForm.registrationDeadline).toISOString()
+            : undefined,
           location: addEventForm.location,
           tag: addEventForm.tag,
           photo: addEventForm.photo || undefined,
@@ -479,10 +487,11 @@ export default function AdminPage() {
       setAddEventForm({
         title: "",
         date: "",
+        registrationDeadline: "",
         location: "",
         tag: "Public Hearing",
         capacity: 100,
-        photo: "/pictures/stage-presentation.jpeg",
+        photo: "/pictures/national-townhall.jpeg",
         description: "",
       });
       await loadAdminData();
@@ -509,6 +518,9 @@ export default function AdminPage() {
           photo: editingEvent.photo || undefined,
           tag: editingEvent.tag || undefined,
           date: editingEvent.rawDate ? new Date(editingEvent.rawDate).toISOString() : undefined,
+          registrationDeadline: editingEvent.rawDeadline !== undefined
+            ? (editingEvent.rawDeadline ? new Date(editingEvent.rawDeadline).toISOString() : null)
+            : undefined,
           description: editingEvent.description,
         }),
       });
@@ -795,7 +807,7 @@ export default function AdminPage() {
         title: "",
         type: "ARTICLE",
         url: "",
-        thumbnail: "/pictures/roundtable-overhead.jpeg",
+        thumbnail: "/pictures/policy-roundtable.jpeg",
         author: "NYBF Policy Research Desk",
         location: "Nairobi",
         summary: "",
@@ -833,7 +845,7 @@ export default function AdminPage() {
         <section className="relative min-h-[calc(100vh-80px)] flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-brand-dark overflow-hidden">
           <div className="absolute inset-0">
             <Image
-              src="/pictures/roundtable-overhead.jpeg"
+              src="/pictures/policy-roundtable.jpeg"
               alt="NYBF Secretariat"
               fill
               sizes="100vw"
@@ -1314,39 +1326,61 @@ export default function AdminPage() {
                           </td>
                           <td className="py-3.5 text-muted">{m.civicRole || "Member"}</td>
                           <td className="py-3.5">
-                            <div className="flex items-center gap-2">
-                              <select
-                                value={m.role}
-                                disabled={updatingUserRoleId === m.id}
-                                onChange={(e) => handleUpdateUserRole(m.id, e.target.value)}
-                                className={`rounded-lg border px-2.5 py-1 text-xs font-bold uppercase tracking-wider outline-none cursor-pointer ${
-                                  m.role === "ADMIN"
-                                    ? "border-purple-500/30 bg-purple-500/10 text-purple-600 dark:text-purple-400"
-                                    : m.role === "COORDINATOR"
-                                    ? "border-blue-500/30 bg-blue-500/10 text-blue-600 dark:text-blue-400"
-                                    : m.role === "MODERATOR"
-                                    ? "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400"
-                                    : "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                                }`}
-                              >
-                                <option value="MEMBER">MEMBER</option>
-                                <option value="MODERATOR">MODERATOR</option>
-                                <option value="COORDINATOR">COORDINATOR</option>
-                                <option value="ADMIN">ADMIN</option>
-                              </select>
-                              {updatingUserRoleId === m.id && <Loader2 size={13} className="animate-spin text-brand" />}
-                            </div>
+                            {(() => {
+                              const isSelf = Boolean(m.id === (session?.user as any)?.id || (Boolean(m.email) && m.email === (session?.user as any)?.email));
+                              return (
+                                <div className="flex items-center gap-2">
+                                  <select
+                                    value={m.role}
+                                    disabled={updatingUserRoleId === m.id || isSelf}
+                                    title={isSelf ? "You cannot revoke your own administrator role" : undefined}
+                                    onChange={(e) => handleUpdateUserRole(m.id, e.target.value)}
+                                    className={`rounded-lg border px-2.5 py-1 text-xs font-bold uppercase tracking-wider outline-none ${
+                                      isSelf ? "cursor-not-allowed opacity-75" : "cursor-pointer"
+                                    } ${
+                                      m.role === "ADMIN"
+                                        ? "border-purple-500/30 bg-purple-500/10 text-purple-600 dark:text-purple-400"
+                                        : m.role === "COORDINATOR"
+                                        ? "border-blue-500/30 bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                                        : m.role === "MODERATOR"
+                                        ? "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                                        : "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                                    }`}
+                                  >
+                                    <option value="MEMBER">MEMBER</option>
+                                    <option value="MODERATOR">MODERATOR</option>
+                                    <option value="COORDINATOR">COORDINATOR</option>
+                                    <option value="ADMIN">ADMIN</option>
+                                  </select>
+                                  {updatingUserRoleId === m.id && <Loader2 size={13} className="animate-spin text-brand" />}
+                                </div>
+                              );
+                            })()}
                           </td>
                           <td className="py-3.5 text-muted">{m.joined}</td>
                           <td className="py-3.5 text-right">
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteUser(m.id, m.name)}
-                              className="rounded-lg p-1.5 text-muted hover:text-rose-600 hover:bg-rose-500/10 transition"
-                              title="Delete Member Account"
-                            >
-                              <Trash2 size={15} />
-                            </button>
+                            {(() => {
+                              const isSelf = m.id === (session?.user as any)?.id || (m.email && m.email === (session?.user as any)?.email);
+                              return isSelf ? (
+                                <button
+                                  type="button"
+                                  disabled
+                                  className="rounded-lg p-1.5 text-muted/30 cursor-not-allowed opacity-50"
+                                  title="You cannot delete your own administrator account"
+                                >
+                                  <Trash2 size={15} />
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteUser(m.id, m.name)}
+                                  className="rounded-lg p-1.5 text-muted hover:text-rose-600 hover:bg-rose-500/10 transition"
+                                  title="Delete Member Account"
+                                >
+                                  <Trash2 size={15} />
+                                </button>
+                              );
+                            })()}
                           </td>
                         </tr>
                       ))}
@@ -1808,7 +1842,7 @@ export default function AdminPage() {
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-ink/80">Date & Time</label>
+                  <label className="text-xs font-bold uppercase tracking-wider text-ink/80">Event Date & Time</label>
                   <input
                     type="datetime-local"
                     required
@@ -1818,22 +1852,33 @@ export default function AdminPage() {
                   />
                 </div>
                 <div>
+                  <label className="text-xs font-bold uppercase tracking-wider text-ink/80">
+                    Registration Deadline <span className="text-[10px] text-muted normal-case">(Defaults to event date)</span>
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={addEventForm.registrationDeadline}
+                    onChange={(e) => setAddEventForm({ ...addEventForm, registrationDeadline: e.target.value })}
+                    className="mt-1 w-full rounded-2xl border border-line bg-bg p-3 text-xs text-ink outline-none focus:border-brand"
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div>
                   <label className="text-xs font-bold uppercase tracking-wider text-ink/80">Location / County</label>
                   <input
                     required
-                    placeholder="e.g. Nairobi, Town Hall"
+                    placeholder="e.g. Nairobi, City Hall"
                     value={addEventForm.location}
                     onChange={(e) => setAddEventForm({ ...addEventForm, location: e.target.value })}
                     className="mt-1 w-full rounded-2xl border border-line bg-bg p-3 text-xs sm:text-sm text-ink outline-none focus:border-brand"
                   />
                 </div>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-2">
                 <div>
                   <label className="text-xs font-bold uppercase tracking-wider text-ink/80">Category / Tag</label>
                   <input
-                    placeholder="e.g. Public Hearing"
+                    placeholder="e.g. Town Hall"
                     value={addEventForm.tag}
                     onChange={(e) => setAddEventForm({ ...addEventForm, tag: e.target.value })}
                     className="mt-1 w-full rounded-2xl border border-line bg-bg p-3 text-xs text-ink outline-none focus:border-brand"
@@ -1851,15 +1896,11 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-ink/80">Photo / Banner URL</label>
-                <input
-                  placeholder="/pictures/stage-presentation.jpeg"
-                  value={addEventForm.photo}
-                  onChange={(e) => setAddEventForm({ ...addEventForm, photo: e.target.value })}
-                  className="mt-1 w-full rounded-2xl border border-line bg-bg p-3 text-xs sm:text-sm text-ink outline-none focus:border-brand"
-                />
-              </div>
+              <EventImagePicker
+                value={addEventForm.photo}
+                onChange={(photoUrl) => setAddEventForm({ ...addEventForm, photo: photoUrl })}
+                mediaItems={mediaItems}
+              />
 
               <div>
                 <label className="text-xs font-bold uppercase tracking-wider text-ink/80">Description & Agenda</label>
@@ -1930,11 +1971,43 @@ export default function AdminPage() {
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
+                  <label className="text-xs font-bold uppercase tracking-wider text-ink/80">Date & Time</label>
+                  <input
+                    type="datetime-local"
+                    value={editingEvent.rawDate || ""}
+                    onChange={(e) => setEditingEvent({ ...editingEvent, rawDate: e.target.value })}
+                    className="mt-1 w-full rounded-2xl border border-line bg-bg p-3 text-xs text-ink outline-none focus:border-brand"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold uppercase tracking-wider text-ink/80">
+                    Registration Deadline <span className="text-[10px] text-muted normal-case">(Defaults to event date)</span>
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={editingEvent.rawDeadline || ""}
+                    onChange={(e) => setEditingEvent({ ...editingEvent, rawDeadline: e.target.value })}
+                    className="mt-1 w-full rounded-2xl border border-line bg-bg p-3 text-xs text-ink outline-none focus:border-brand"
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div>
                   <label className="text-xs font-bold uppercase tracking-wider text-ink/80">Location / County</label>
                   <input
                     required
                     value={editingEvent.location}
                     onChange={(e) => setEditingEvent({ ...editingEvent, location: e.target.value })}
+                    className="mt-1 w-full rounded-2xl border border-line bg-bg p-3 text-xs sm:text-sm text-ink outline-none focus:border-brand"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold uppercase tracking-wider text-ink/80">Tag / Category</label>
+                  <input
+                    placeholder="e.g. Town Hall"
+                    value={editingEvent.tag || ""}
+                    onChange={(e) => setEditingEvent({ ...editingEvent, tag: e.target.value })}
                     className="mt-1 w-full rounded-2xl border border-line bg-bg p-3 text-xs sm:text-sm text-ink outline-none focus:border-brand"
                   />
                 </div>
@@ -1950,26 +2023,11 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-ink/80">Tag / Category</label>
-                  <input
-                    placeholder="e.g. Public Hearing"
-                    value={editingEvent.tag || ""}
-                    onChange={(e) => setEditingEvent({ ...editingEvent, tag: e.target.value })}
-                    className="mt-1 w-full rounded-2xl border border-line bg-bg p-3 text-xs sm:text-sm text-ink outline-none focus:border-brand"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-ink/80">Photo / Banner URL</label>
-                  <input
-                    placeholder="/pictures/stage-presentation.jpeg"
-                    value={editingEvent.photo || ""}
-                    onChange={(e) => setEditingEvent({ ...editingEvent, photo: e.target.value })}
-                    className="mt-1 w-full rounded-2xl border border-line bg-bg p-3 text-xs sm:text-sm text-ink outline-none focus:border-brand"
-                  />
-                </div>
-              </div>
+              <EventImagePicker
+                value={editingEvent.photo || ""}
+                onChange={(photoUrl) => setEditingEvent({ ...editingEvent, photo: photoUrl })}
+                mediaItems={mediaItems}
+              />
 
               <div>
                 <label className="text-xs font-bold uppercase tracking-wider text-ink/80">Description & Agenda</label>
@@ -2354,26 +2412,66 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-ink/80">Thumbnail Image Path</label>
-                  <input
-                    placeholder="/pictures/roundtable-overhead.jpeg"
-                    value={addMediaForm.thumbnail}
-                    onChange={(e) => setAddMediaForm({ ...addMediaForm, thumbnail: e.target.value })}
-                    className="mt-1 w-full rounded-2xl border border-line bg-bg p-3 text-xs text-ink outline-none focus:border-brand"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-ink/80">Video / Audio / Link URL</label>
-                  <input
-                    placeholder="https://..."
+              <div className="space-y-4">
+                <FileUploadInput
+                  label="Thumbnail / Cover Image"
+                  value={addMediaForm.thumbnail}
+                  onChange={(url) => setAddMediaForm({ ...addMediaForm, thumbnail: url })}
+                  category="image"
+                  accept="image/*"
+                  placeholderUrl="/pictures/policy-roundtable.jpeg or https://..."
+                  helperText="Upload a cover photo from your device or paste a URL (Max 5 MB). Uploads to Vercel Blob."
+                />
+
+                {addMediaForm.type === "VIDEO" && (
+                  <FileUploadInput
+                    label="Video Content Asset"
                     value={addMediaForm.url}
-                    onChange={(e) => setAddMediaForm({ ...addMediaForm, url: e.target.value })}
-                    className="mt-1 w-full rounded-2xl border border-line bg-bg p-3 text-xs text-ink outline-none focus:border-brand"
+                    onChange={(url) => setAddMediaForm({ ...addMediaForm, url })}
+                    category="video"
+                    accept="video/*"
+                    placeholderUrl="https://youtube.com/... or https://..."
+                    helperText="Upload video file (MP4, WebM, MOV up to 100 MB) from your device or paste a streaming video link."
                   />
-                </div>
+                )}
+
+                {addMediaForm.type === "PODCAST" && (
+                  <FileUploadInput
+                    label="Podcast Audio Track"
+                    value={addMediaForm.url}
+                    onChange={(url) => setAddMediaForm({ ...addMediaForm, url })}
+                    category="audio"
+                    accept="audio/*"
+                    placeholderUrl="https://... (audio or podcast link)"
+                    helperText="Upload audio recording (MP3, WAV, M4A up to 50 MB) from your device or paste an external link."
+                  />
+                )}
+
+                {addMediaForm.type === "IMAGE" && (
+                  <FileUploadInput
+                    label="Infographic / High-Resolution Photo"
+                    value={addMediaForm.url}
+                    onChange={(url) => setAddMediaForm({ ...addMediaForm, url })}
+                    category="image"
+                    accept="image/*"
+                    placeholderUrl="/pictures/... or https://..."
+                    helperText="Upload full-resolution image from your device (Max 5 MB) or paste an image link."
+                  />
+                )}
+
+                {addMediaForm.type === "ARTICLE" && (
+                  <div>
+                    <label className="text-xs font-bold uppercase tracking-wider text-ink/80">External Reference / PDF Link (Optional)</label>
+                    <input
+                      placeholder="https://..."
+                      value={addMediaForm.url}
+                      onChange={(e) => setAddMediaForm({ ...addMediaForm, url: e.target.value })}
+                      className="mt-1 w-full rounded-2xl border border-line bg-bg p-3 text-xs text-ink outline-none focus:border-brand font-mono"
+                    />
+                  </div>
+                )}
               </div>
+
 
               <div>
                 <label className="text-xs font-bold uppercase tracking-wider text-ink/80">Summary / Abstract</label>
