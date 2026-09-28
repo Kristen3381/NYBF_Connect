@@ -177,15 +177,44 @@ export async function POST(req: Request) {
     const blobPathname = `uploads/${category}/${safeFilename}`;
 
     // 8. Upload to Storage Backend
-    const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
+    // Vercel Blob supports two authentication methods in @vercel/blob:
+    //  a) Platform-managed OIDC auth: BLOB_STORE_ID + Vercel ambient OIDC token (VERCEL_OIDC_TOKEN)
+    //  b) Static token auth: BLOB_READ_WRITE_TOKEN
+    const isBlobConfigured = Boolean(
+      process.env.BLOB_STORE_ID ||
+      process.env.BLOB_READ_WRITE_TOKEN ||
+      process.env.VERCEL_OIDC_TOKEN
+    );
 
-    if (blobToken) {
-      // Production & Tokenized Storage via Vercel Blob
-      const blob = await put(blobPathname, file, {
+    if (isBlobConfigured || process.env.NODE_ENV === "production") {
+      if (!isBlobConfigured) {
+        return NextResponse.json(
+          {
+            error:
+              "Vercel Blob storage is not configured. Please ensure your Vercel Blob store is connected (BLOB_STORE_ID or BLOB_READ_WRITE_TOKEN in environment variables).",
+          },
+          { status: 500 }
+        );
+      }
+
+      const putOptions: {
+        access: "public";
+        contentType?: string;
+        storeId?: string;
+        token?: string;
+      } = {
         access: "public",
-        token: blobToken,
         contentType: mimeType || undefined,
-      });
+      };
+
+      if (process.env.BLOB_STORE_ID) {
+        putOptions.storeId = process.env.BLOB_STORE_ID;
+      }
+      if (process.env.BLOB_READ_WRITE_TOKEN) {
+        putOptions.token = process.env.BLOB_READ_WRITE_TOKEN;
+      }
+
+      const blob = await put(blobPathname, file, putOptions);
 
       return NextResponse.json({
         success: true,
@@ -198,18 +227,7 @@ export async function POST(req: Request) {
       });
     }
 
-    // Fallback for Local Development if BLOB_READ_WRITE_TOKEN is not yet set
-    if (process.env.NODE_ENV === "production") {
-      return NextResponse.json(
-        {
-          error:
-            "Vercel Blob storage is not configured. Please set BLOB_READ_WRITE_TOKEN in your environment variables.",
-        },
-        { status: 500 }
-      );
-    }
-
-    // Local dev: Save to public/uploads/
+    // Local dev fallback: Save to public/uploads/ when Blob storage is not configured
     const devUploadsDir = path.join(process.cwd(), "public", "uploads", category);
     await fs.promises.mkdir(devUploadsDir, { recursive: true });
     const localFilePath = path.join(devUploadsDir, safeFilename);
@@ -226,7 +244,7 @@ export async function POST(req: Request) {
       size: file.size,
       provider: "local-dev-fallback",
       warning:
-        "Saved to local public/uploads/ because BLOB_READ_WRITE_TOKEN is not configured yet. For production CDN hosting, add BLOB_READ_WRITE_TOKEN to your environment.",
+        "Saved to local public/uploads/ because Vercel Blob is not configured. For production CDN hosting, connect a Vercel Blob store.",
     });
   } catch (error: any) {
     console.error("[Upload API] error:", error);

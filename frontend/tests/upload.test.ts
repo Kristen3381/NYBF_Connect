@@ -17,6 +17,8 @@ describe("POST /api/upload — File Uploads & Validation", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     delete process.env.BLOB_READ_WRITE_TOKEN;
+    delete process.env.BLOB_STORE_ID;
+    delete process.env.VERCEL_OIDC_TOKEN;
   });
 
   function createMockRequest(file: File | null, category?: string) {
@@ -159,5 +161,61 @@ describe("POST /api/upload — File Uploads & Validation", () => {
         token: "vercel_blob_rw_test_token_12345",
       })
     );
+  });
+
+  it("successfully uploads to Vercel Blob when BLOB_STORE_ID is set (platform-managed OIDC auth)", async () => {
+    process.env.BLOB_STORE_ID = "store_test_oidc_123";
+
+    vi.mocked(getServerSession).mockResolvedValueOnce({
+      user: { id: "admin-1", email: "nybfsecretariat@gmail.com", role: "ADMIN" },
+    } as any);
+
+    vi.mocked(put).mockResolvedValueOnce({
+      url: "https://abc123xyz.public.blob.vercel-storage.com/uploads/image/townhall-test.jpg",
+      downloadUrl: "https://abc123xyz.public.blob.vercel-storage.com/uploads/image/townhall-test.jpg?download=1",
+      pathname: "uploads/image/townhall-test.jpg",
+      contentType: "image/jpeg",
+      contentDisposition: 'inline; filename="townhall-test.jpg"',
+      etag: '"test-etag-123"',
+    });
+
+    const file = new File(["valid image data"], "townhall.jpg", { type: "image/jpeg" });
+    const req = createMockRequest(file, "image");
+
+    const res = await uploadHandler(req);
+    const data = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(data.success).toBe(true);
+    expect(data.provider).toBe("vercel-blob");
+    expect(data.url).toContain("https://abc123xyz.public.blob.vercel-storage.com");
+    expect(put).toHaveBeenCalledWith(
+      expect.stringContaining("uploads/image/townhall"),
+      expect.any(File),
+      expect.objectContaining({
+        access: "public",
+        storeId: "store_test_oidc_123",
+      })
+    );
+  });
+
+  it("returns 500 in production when Blob storage is not configured", async () => {
+    const originalEnv = process.env.NODE_ENV;
+    (process.env as any).NODE_ENV = "production";
+
+    vi.mocked(getServerSession).mockResolvedValueOnce({
+      user: { id: "admin-1", email: "nybfsecretariat@gmail.com", role: "ADMIN" },
+    } as any);
+
+    const file = new File(["valid image data"], "townhall.jpg", { type: "image/jpeg" });
+    const req = createMockRequest(file, "image");
+
+    const res = await uploadHandler(req);
+    const data = await res.json();
+
+    (process.env as any).NODE_ENV = originalEnv;
+
+    expect(res.status).toBe(500);
+    expect(data.error).toContain("Vercel Blob storage is not configured");
   });
 });
